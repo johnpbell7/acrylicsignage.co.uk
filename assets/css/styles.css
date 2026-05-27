@@ -193,14 +193,17 @@ em.ital { font-style: normal; font-weight: 400; color: var(--ink-faint); }
   position: sticky; top: 0; z-index: 50;
   isolation: isolate; /* protect the dark CTA text from the body grain multiply blend */
   background: #ffffff;
+  /* push background up into the iOS safe area so no grey strip shows above */
+  padding-top: env(safe-area-inset-top, 0px);
+  box-shadow: 0 2px 12px rgba(20, 23, 26, .05);
 }
 .nav.scrolled {}
-/* keep the over-scroll bounce area on iOS the same white as the nav */
+/* over-scroll bounce area on iOS matches the nav */
 html { background: #ffffff; }
 body { background: #ffffff; }
 .nav__in { display: flex; align-items: center; justify-content: space-between; height: 74px; }
 .brand { display: inline-flex; align-items: center; }
-.brand__logo { height: 36px; width: auto; display: block; transition: transform .3s var(--ease); }
+.brand__logo { height: 42px; width: auto; display: block; transition: transform .3s var(--ease); }
 .brand:hover .brand__logo { transform: translateY(-1px); }
 .brand--footer .brand__logo {
   /* invert the light-bg logo to read white on the dark footer */
@@ -1043,8 +1046,10 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
     display: flex; gap: 1rem;
     overflow-x: auto; scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    margin-inline: calc(var(--gut) * -1);
-    padding-inline: var(--gut); padding-bottom: .5rem;
+    /* relies on parent .wrap's padding — cards never sit flush to the screen edge */
+    margin-inline: 0;
+    padding-inline: 0;
+    padding-bottom: .5rem;
     scrollbar-width: none;
   }
   .mat-rail::-webkit-scrollbar { display: none; }
