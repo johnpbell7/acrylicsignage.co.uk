@@ -1,0 +1,20 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# dependencies (none required, but in case you add tooling)
+node_modules/
+package-lock.json
+
+# build output / scratch
+dist/
+*.log
+
+# Claude Code local state
+.claude/
+
+# legacy asset backups (kept locally for reference, not for the repo)
+assets/img/makes-bak/
