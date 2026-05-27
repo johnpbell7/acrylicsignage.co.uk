@@ -141,9 +141,12 @@ em.ital { font-style: normal; font-weight: 400; color: var(--ink-faint); }
 .nav {
   position: sticky; top: 0; z-index: 50;
   isolation: isolate; /* protect the dark CTA text from the body grain multiply blend */
-  background: var(--paper);
+  background: #ffffff;
 }
 .nav.scrolled {}
+/* keep the over-scroll bounce area on iOS the same white as the nav */
+html { background: #ffffff; }
+body { background: #ffffff; }
 .nav__in { display: flex; align-items: center; justify-content: space-between; height: 74px; }
 .brand { display: inline-flex; align-items: center; }
 .brand__logo { height: 36px; width: auto; display: block; transition: transform .3s var(--ease); }
@@ -571,7 +574,7 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
    ============================================================ */
 .statement { background: var(--dark); color: var(--on-dark); }
 .statement .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem,5vw,5rem); align-items: center; }
-.statement__copy h2 { font-size: clamp(2.2rem, 5vw, 4.2rem); color: var(--on-dark); line-height: 1.04; }
+.statement__copy h2 { color: var(--on-dark); line-height: 1.04; }
 .statement__copy h2 b { font-weight: 600; }
 .statement__copy h2 em { font-style: normal; color: var(--on-dark-soft); font-weight: 400; }
 .statement__copy p { margin-top: 1.5rem; color: var(--on-dark-soft); max-width: 46ch; }
@@ -831,7 +834,7 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
    ============================================================ */
 .enquiry { position: relative; z-index: 2; }
 .enquiry__card { background: var(--paper-2); border: 1px solid var(--line); border-radius: var(--radius-l); padding: clamp(2rem, 5vw, 4.5rem); display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(2rem, 5vw, 5rem); box-shadow: 0 40px 80px -50px rgba(20,23,26,.35); }
-.enquiry__intro h2 { font-size: clamp(2.2rem,5vw,3.6rem); }
+.enquiry__intro h2 { }
 .enquiry__intro p { margin-top: 1.2rem; color: var(--ink-soft); max-width: 38ch; }
 .enquiry__list { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
 .enquiry__list li { display: flex; align-items: center; gap: .8rem; color: var(--ink); font-size: 1rem; }
