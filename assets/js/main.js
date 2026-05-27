@@ -4,41 +4,46 @@
 (function () {
   'use strict';
 
-  /* ---- intro overlay: short welcome on first visit ---- */
+  /* ---- intro overlay: short welcome — plays every page load ---- */
   (function () {
     var intro = document.getElementById('intro');
     if (!intro) return;
-    var seen = false;
-    try { seen = !!sessionStorage.getItem('introSeen'); } catch (_) {}
     var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     function finish() {
-      try { sessionStorage.setItem('introSeen', '1'); } catch (_) {}
       document.body.classList.remove('intro-active');
       intro.remove();
       window.dispatchEvent(new Event('intro:done'));
     }
 
-    if (seen || reduce || !window.gsap) {
-      // skip the animation — fire the event so animations.js can start immediately
+    if (reduce || !window.gsap) {
       requestAnimationFrame(finish);
       return;
     }
 
     document.body.classList.add('intro-active');
-    var mark = intro.querySelector('.intro__mark');
-    var word = intro.querySelector('.intro__word');
-    var sub  = intro.querySelector('.intro__sub');
+    var signs = intro.querySelectorAll('.intro__sign');
+    var word  = intro.querySelector('.intro__word');
+    var sub   = intro.querySelector('.intro__sub');
     var inner = intro.querySelector('.intro__inner');
 
-    gsap.set([mark, word, sub], { autoAlpha: 0, y: 14 });
+    // each sign gets a small base rotation so the row feels hand-pinned, not a line of stamps
+    var rots = [-7, 4, -3, 6];
+    signs.forEach(function (el, i) {
+      gsap.set(el, { autoAlpha: 0, y: 30, scale: 0.7, rotation: rots[i % rots.length] });
+    });
+    gsap.set([word, sub], { autoAlpha: 0, y: 14 });
 
     var tl = gsap.timeline({ onComplete: finish });
-    tl.to(mark, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' })
-      .fromTo(mark, { scale: 0.88 }, { scale: 1, duration: 0.55, ease: 'power3.out' }, '<')
-      .to(word, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.25')
+    tl.to(signs, {
+        autoAlpha: 1, y: 0, scale: 1,
+        duration: 0.55,
+        ease: 'back.out(1.5)',
+        stagger: { each: 0.08, from: 'start' }
+      })
+      .to(word, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.2')
       .to(sub,  { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.3')
-      .to(inner, { y: -10, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, '+=0.45')
+      .to(inner, { y: -14, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, '+=0.55')
       .to(intro, { autoAlpha: 0, duration: 0.4, ease: 'power2.inOut' }, '-=0.15');
   })();
 

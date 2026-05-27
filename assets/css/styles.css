@@ -109,6 +109,21 @@ body::before {
   height: clamp(64px, 12vw, 96px);
 }
 .intro__mark svg { width: 100%; height: 100%; }
+
+/* row of signage PNGs that animate in for the intro */
+.intro__signs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.4rem, 1.2vw, .8rem);
+  margin-bottom: .4rem;
+}
+.intro__sign {
+  width: clamp(56px, 11vw, 110px);
+  height: auto;
+  object-fit: contain;
+  will-change: transform, opacity;
+}
 .intro__word {
   font-family: var(--display);
   font-size: clamp(1.6rem, 5vw, 2.6rem);
