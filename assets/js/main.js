@@ -4,6 +4,44 @@
 (function () {
   'use strict';
 
+  /* ---- intro overlay: short welcome on first visit ---- */
+  (function () {
+    var intro = document.getElementById('intro');
+    if (!intro) return;
+    var seen = false;
+    try { seen = !!sessionStorage.getItem('introSeen'); } catch (_) {}
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function finish() {
+      try { sessionStorage.setItem('introSeen', '1'); } catch (_) {}
+      document.body.classList.remove('intro-active');
+      intro.remove();
+      window.dispatchEvent(new Event('intro:done'));
+    }
+
+    if (seen || reduce || !window.gsap) {
+      // skip the animation — fire the event so animations.js can start immediately
+      requestAnimationFrame(finish);
+      return;
+    }
+
+    document.body.classList.add('intro-active');
+    var mark = intro.querySelector('.intro__mark');
+    var word = intro.querySelector('.intro__word');
+    var sub  = intro.querySelector('.intro__sub');
+    var inner = intro.querySelector('.intro__inner');
+
+    gsap.set([mark, word, sub], { autoAlpha: 0, y: 14 });
+
+    var tl = gsap.timeline({ onComplete: finish });
+    tl.to(mark, { autoAlpha: 1, y: 0, scale: 1, duration: 0.55, ease: 'power3.out' })
+      .fromTo(mark, { scale: 0.88 }, { scale: 1, duration: 0.55, ease: 'power3.out' }, '<')
+      .to(word, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.25')
+      .to(sub,  { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.3')
+      .to(inner, { y: -10, autoAlpha: 0, duration: 0.5, ease: 'power2.in' }, '+=0.45')
+      .to(intro, { autoAlpha: 0, duration: 0.4, ease: 'power2.inOut' }, '-=0.15');
+  })();
+
   /* ---- inject custom icons everywhere [data-icon] ---- */
   document.querySelectorAll('[data-icon]').forEach(function (el) {
     var name = el.getAttribute('data-icon');

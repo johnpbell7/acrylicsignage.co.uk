@@ -53,30 +53,40 @@
       gsap.set(allChars, { yPercent: 0, opacity: 1 });
       gsap.set('.hero__lede, .hero__actions, .hero__visual', { opacity: 1, y: 0 });
     } else {
+      // park everything off-screen / invisible until the intro completes
       gsap.set(allChars, { yPercent: 110, opacity: 0 });
       gsap.set('.hero__lede, .hero__actions, .hero__visual', { opacity: 0 });
 
-      var heroTL = gsap.timeline({ defaults: { ease: 'power2.out' } });
-      heroTL
-        .to(allChars, {
-          yPercent: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: { each: 0.012, from: 'start' }
-        })
-        .fromTo('.hero__lede',
-          { y: 14, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.45 },
-          '-=0.35')
-        .fromTo('.hero__actions > *',
-          { y: 10, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.4, stagger: 0.05 },
-          '-=0.3')
-        .to('.hero__actions', { opacity: 1, duration: 0.01 }, '<')
-        .fromTo('.hero__visual',
-          { y: 18, scale: 0.99, opacity: 0 },
-          { y: 0, scale: 1, opacity: 1, duration: 0.6 },
-          '-=0.55');
+      function playHero() {
+        var heroTL = gsap.timeline({ defaults: { ease: 'power2.out' } });
+        heroTL
+          .to(allChars, {
+            yPercent: 0,
+            opacity: 1,
+            duration: 0.6,
+            stagger: { each: 0.012, from: 'start' }
+          })
+          .fromTo('.hero__lede',
+            { y: 14, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.45 },
+            '-=0.35')
+          .fromTo('.hero__actions > *',
+            { y: 10, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.4, stagger: 0.05 },
+            '-=0.3')
+          .to('.hero__actions', { opacity: 1, duration: 0.01 }, '<')
+          .fromTo('.hero__visual',
+            { y: 18, scale: 0.99, opacity: 0 },
+            { y: 0, scale: 1, opacity: 1, duration: 0.6 },
+            '-=0.55');
+      }
+
+      // wait for the intro overlay to finish (or fire immediately if it's gone)
+      if (document.getElementById('intro')) {
+        window.addEventListener('intro:done', playHero, { once: true });
+      } else {
+        playHero();
+      }
     }
   }
 

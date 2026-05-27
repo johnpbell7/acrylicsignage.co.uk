@@ -83,6 +83,57 @@ body::before {
   mix-blend-mode: multiply;
 }
 
+/* ---- intro overlay (first-load welcome) ---- */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  pointer-events: none; /* still allow underneath; overlay fades out */
+}
+.intro__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.4rem;
+  text-align: center;
+  padding: 1rem;
+  max-width: 90vw;
+}
+.intro__mark {
+  display: inline-flex;
+  color: var(--ink);
+  width: clamp(64px, 12vw, 96px);
+  height: clamp(64px, 12vw, 96px);
+}
+.intro__mark svg { width: 100%; height: 100%; }
+.intro__word {
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 5vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin: 0;
+}
+.intro__word span {
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+.intro__sub {
+  font-size: clamp(.7rem, 1.6vw, .82rem);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+/* page content is muted underneath until intro completes */
+body.intro-active .nav,
+body.intro-active .ticker,
+body.intro-active main,
+body.intro-active .footer { visibility: hidden; }
+
 /* ---- skip link — hidden via clip so it can't peek during iOS over-scroll ---- */
 .skip {
   position: absolute;
