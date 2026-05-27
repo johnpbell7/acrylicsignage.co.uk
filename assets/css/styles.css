@@ -83,9 +83,32 @@ body::before {
   mix-blend-mode: multiply;
 }
 
-/* ---- skip link ---- */
-.skip { position: absolute; left: -999px; top: 0; z-index: 100; background: var(--ink); color: var(--paper); padding: .75rem 1.25rem; border-radius: 0 0 var(--radius-s) 0; }
-.skip:focus { left: 0; }
+/* ---- skip link — hidden via clip so it can't peek during iOS over-scroll ---- */
+.skip {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.skip:focus {
+  position: fixed;
+  top: .75rem; left: .75rem;
+  width: auto; height: auto;
+  margin: 0; padding: .75rem 1.25rem;
+  overflow: visible;
+  clip: auto;
+  clip-path: none;
+  white-space: normal;
+  background: var(--ink);
+  color: #ffffff;
+  border-radius: var(--radius-s);
+  z-index: 1000;
+  font-weight: 600;
+}
 
 /* ---- layout helpers ---- */
 .wrap { width: 100%; max-width: var(--max); margin-inline: auto; padding-inline: var(--gut); }
