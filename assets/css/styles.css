@@ -141,12 +141,9 @@ em.ital { font-style: normal; font-weight: 400; color: var(--ink-faint); }
 .nav {
   position: sticky; top: 0; z-index: 50;
   isolation: isolate; /* protect the dark CTA text from the body grain multiply blend */
-  backdrop-filter: blur(10px);
-  background: color-mix(in srgb, var(--paper) 82%, transparent);
-  border-bottom: 1px solid transparent;
-  transition: border-color .4s var(--ease), background .4s var(--ease);
+  background: var(--paper);
 }
-.nav.scrolled { border-bottom-color: var(--line); }
+.nav.scrolled {}
 .nav__in { display: flex; align-items: center; justify-content: space-between; height: 74px; }
 .brand { display: inline-flex; align-items: center; gap: .65rem; color: var(--ink); }
 .brand__mark { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 8px; background: var(--ink); color: var(--paper); flex: none; transition: transform .3s var(--ease); }
@@ -414,17 +411,8 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   align-items: end;
   margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
 }
-.makes__head .eyebrow { grid-column: 1; grid-row: 1; align-self: start; }
-.makes__title { grid-column: 1; grid-row: 2; margin-top: .8rem; max-width: 14ch; }
-.makes__lede { grid-column: 2; grid-row: 2; max-width: 42ch; align-self: end; margin-bottom: .15rem; }
-.makes__meta {
-  grid-column: 2; grid-row: 1; justify-self: end; align-self: start;
-  display: inline-flex; align-items: center; gap: .8rem;
-  font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
-  color: var(--ink-faint); font-variant-numeric: tabular-nums;
-}
-.makes__meta i { font-style: normal; padding: 0 .2em; opacity: .55; }
-.makes__rule { display: inline-block; width: 36px; height: 1px; background: var(--line-strong); }
+.makes__title { grid-column: 1; max-width: 14ch; }
+.makes__lede { grid-column: 2; max-width: 42ch; margin-bottom: .15rem; }
 
 .makes__grid {
   display: grid;
@@ -556,10 +544,8 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
 /* tablet — 6-col bento */
 @media (max-width: 1000px) {
   .makes__head { grid-template-columns: 1fr; }
-  .makes__head .eyebrow { grid-row: 1; }
-  .makes__meta { grid-column: 1; grid-row: 2; justify-self: start; }
-  .makes__title { grid-column: 1; grid-row: 3; max-width: 22ch; }
-  .makes__lede { grid-column: 1; grid-row: 4; }
+  .makes__title { grid-column: 1; max-width: 22ch; }
+  .makes__lede { grid-column: 1; }
 
   .makes__grid { grid-template-columns: repeat(6, 1fr); }
   .make--w7 { grid-column: span 6; }
