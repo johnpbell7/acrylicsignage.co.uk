@@ -93,7 +93,11 @@
     if (!slides.length) return;
 
     var current = 0;
-    var INTERVAL = 5000;
+    // per-slide dwell time: slide 0 has the video — let it breathe.
+    // anything else stays on the standard 5s rotation
+    var DWELL_DEFAULT = 5000;
+    var DWELL_BY_INDEX = { 0: 8500 };
+    function dwellFor(i) { return DWELL_BY_INDEX[i] || DWELL_DEFAULT; }
     var timer = null;
     var paused = false;
 
@@ -148,11 +152,12 @@
       apply();
     }
     apply(); // initial state
-    function next() { show(current + 1); }
+    function next() { show(current + 1); start(); }
     function start() {
       stop();
       if (paused) return;
-      timer = setInterval(next, INTERVAL);
+      // setTimeout chain so each slide's dwell can differ (slide 0 holds the video longer)
+      timer = setTimeout(next, dwellFor(current));
     }
     function stop() {
       if (timer) { clearInterval(timer); timer = null; }
