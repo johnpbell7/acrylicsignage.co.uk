@@ -61,6 +61,20 @@
     }
   });
 
+  /* ---- expose the live nav height as a CSS var so the mobile menu sits flush ---- */
+  (function () {
+    var nav = document.querySelector('.nav');
+    if (!nav) return;
+    function setNavH() {
+      var h = nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty('--nav-h', h + 'px');
+    }
+    setNavH();
+    window.addEventListener('resize', setNavH);
+    window.addEventListener('orientationchange', setNavH);
+    window.addEventListener('load', setNavH);
+  })();
+
   /* ---- ticker: duplicate items once for seamless mobile marquee ---- */
   var tickerTrack = document.querySelector('.ticker__track');
   if (tickerTrack && !tickerTrack.dataset.cloned) {
@@ -83,23 +97,42 @@
     var timer = null;
     var paused = false;
 
+    // state targets per offset — values match the CSS state classes but driven
+    // by GSAP so we get a single smooth, eased tween between any two states
+    function targetFor(offset, n) {
+      if (offset === 0)       return { translateX: '-50%', scale: 1.00, rotation:  0, opacity: 1.00, zIndex: 3 };
+      if (offset === 1)       return { translateX: '-20%', scale: 0.80, rotation:  6, opacity: 0.55, zIndex: 2 };
+      if (offset === n - 1)   return { translateX: '-80%', scale: 0.80, rotation: -6, opacity: 0.55, zIndex: 2 };
+      return                       { translateX:  '30%', scale: 0.74, rotation:  9, opacity: 0.00, zIndex: 1 };
+    }
+
+    // give each slide its own GSAP "lane" so concurrent tweens overwrite cleanly
+    var slideTweens = slides.map(function () { return null; });
+
     function apply() {
       var n = slides.length;
       slides.forEach(function (s, idx) {
         var offset = ((idx - current) % n + n) % n;
         s.classList.remove('is-active', 'is-prev', 'is-next', 'is-far');
-        if (offset === 0) {
-          s.classList.add('is-active');
-          s.setAttribute('aria-hidden', 'false');
-        } else if (offset === 1) {
-          s.classList.add('is-next');
-          s.setAttribute('aria-hidden', 'true');
-        } else if (offset === n - 1) {
-          s.classList.add('is-prev');
-          s.setAttribute('aria-hidden', 'true');
-        } else {
-          s.classList.add('is-far');
-          s.setAttribute('aria-hidden', 'true');
+        if (offset === 0)            { s.classList.add('is-active'); s.setAttribute('aria-hidden', 'false'); }
+        else if (offset === 1)       { s.classList.add('is-next');   s.setAttribute('aria-hidden', 'true');  }
+        else if (offset === n - 1)   { s.classList.add('is-prev');   s.setAttribute('aria-hidden', 'true');  }
+        else                         { s.classList.add('is-far');    s.setAttribute('aria-hidden', 'true');  }
+
+        if (window.gsap) {
+          var t = targetFor(offset, n);
+          if (slideTweens[idx]) slideTweens[idx].kill();
+          slideTweens[idx] = gsap.to(s, {
+            x: 0, y: 0,
+            xPercent: parseFloat(t.translateX),
+            scale: t.scale,
+            rotation: t.rotation,
+            autoAlpha: t.opacity,
+            zIndex: t.zIndex,
+            duration: 0.85,
+            ease: 'power3.out',
+            overwrite: 'auto'
+          });
         }
       });
       dots.forEach(function (d, i) {

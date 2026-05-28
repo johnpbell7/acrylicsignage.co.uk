@@ -355,54 +355,25 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   left: 50%;
   border-radius: var(--radius-m);
   overflow: hidden;
-  translate: -50% 0;
-  scale: 1;
-  rotate: 0deg;
+  /* initial state — GSAP takes over transitions once main.js runs */
+  transform: translateX(-50%);
   opacity: 0;
-  transition:
-    translate .7s var(--ease),
-    scale .7s var(--ease),
-    rotate .7s var(--ease),
-    opacity .55s var(--ease),
-    filter .55s var(--ease),
-    box-shadow .5s var(--ease);
   z-index: 0;
   pointer-events: none;
-  will-change: translate, scale, rotate, opacity;
+  will-change: transform, opacity;
   background: var(--paper-3);
   transform-origin: 50% 50%;
 }
+/* state classes mark ARIA / non-animated styles only.
+   GSAP drives transform + opacity + z-index from main.js. */
 .hero__slide.is-active {
-  opacity: 1;
-  z-index: 3;
   pointer-events: auto;
   box-shadow: 0 36px 80px -45px rgba(20,23,26,.55);
 }
-.hero__slide.is-prev {
-  translate: -80% 0;
-  scale: 0.8;
-  rotate: -6deg;
-  transform-origin: 80% 50%;
-  opacity: 0.5;
-  filter: brightness(0.88);
-  z-index: 2;
-}
-.hero__slide.is-next {
-  translate: -20% 0;
-  scale: 0.8;
-  rotate: 6deg;
-  transform-origin: 20% 50%;
-  opacity: 0.5;
-  filter: brightness(0.88);
-  z-index: 2;
-}
-.hero__slide.is-far {
-  translate: 30% 0;
-  scale: 0.74;
-  rotate: 9deg;
-  opacity: 0;
-  z-index: 1;
-}
+.hero__slide.is-prev,
+.hero__slide.is-next { filter: brightness(0.88); }
+.hero__slide.is-prev { transform-origin: 80% 50%; }
+.hero__slide.is-next { transform-origin: 20% 50%; }
 /* user can grab + drag the active card */
 .hero__carousel { touch-action: pan-y; cursor: grab; }
 .hero__carousel.is-dragging { cursor: grabbing; }
