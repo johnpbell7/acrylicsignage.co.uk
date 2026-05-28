@@ -234,50 +234,70 @@
      other, then scroll parallax + perpetual float on the illustration
      ============================================================ */
   var steps = gsap.utils.toArray('.step');
-  if (steps.length) {
-    steps.forEach(function (step, i) {
+  var stepsEl = document.querySelector('.steps');
+  var processEl = document.querySelector('.process');
+
+  // gsap.matchMedia splits desktop zigzag entry vs mobile pin-scroll
+  var stepMM = gsap.matchMedia();
+  stepMM.add('(min-width: 721px)', function () {
+    if (reduce) return;
+    steps.forEach(function (step) {
       var alt = step.classList.contains('step--alt');
       var illust = step.querySelector('.step__illust');
       var body = step.querySelector('.step__body');
-      var img = step.querySelector('.step__illust img');
+      gsap.set(illust, { x: alt ? 22 : -22, autoAlpha: 0 });
+      gsap.set(body,   { x: alt ? -16 : 16, autoAlpha: 0 });
+      gsap.timeline({
+        scrollTrigger: { trigger: step, start: 'top bottom-=40', once: true },
+        defaults: { ease: 'power2.out', duration: 0.4 }
+      })
+        .to(illust, { x: 0, autoAlpha: 1 })
+        .to(body,   { x: 0, autoAlpha: 1 }, '-=0.3');
+    });
+  });
 
-      if (!reduce) {
-        gsap.set(illust, { x: alt ? 22 : -22, autoAlpha: 0 });
-        gsap.set(body,   { x: alt ? -16 : 16, autoAlpha: 0 });
-        gsap.timeline({
-          scrollTrigger: { trigger: step, start: 'top bottom-=40', once: true },
-          defaults: { ease: 'power2.out', duration: 0.4 }
-        })
-          .to(illust, { x: 0, autoAlpha: 1 })
-          .to(body,   { x: 0, autoAlpha: 1 }, '-=0.3');
+  stepMM.add('(max-width: 720px)', function () {
+    if (!stepsEl || !processEl) return;
+    // make sure steps are visible (we're not doing per-step entrance on mobile)
+    gsap.set('.step__illust, .step__body', { autoAlpha: 1, x: 0 });
 
-        // perpetual float — different cadence per step
-        if (img) {
-          gsap.to(img, {
-            y: '+=12',
-            duration: 3.4 + (i % 3) * 0.4,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-            delay: i * 0.18
-          });
-
-          // scroll parallax inside the illustration tile
-          gsap.fromTo(img,
-            { yPercent: 6 },
-            {
-              yPercent: -6,
-              ease: 'none',
-              scrollTrigger: {
-                trigger: step,
-                start: 'top bottom',
-                end: 'bottom top',
-                scrub: true
-              }
-            }
-          );
-        }
+    // pin the section and translate the steps row horizontally as the user scrolls
+    function distance() {
+      return Math.max(0, stepsEl.scrollWidth - window.innerWidth);
+    }
+    var pinTween = gsap.to(stepsEl, {
+      x: function () { return -distance(); },
+      ease: 'none',
+      scrollTrigger: {
+        trigger: processEl,
+        start: 'top top',
+        end: function () { return '+=' + distance(); },
+        pin: true,
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+        anticipatePin: 1
       }
+    });
+
+    return function () { pinTween.scrollTrigger && pinTween.scrollTrigger.kill(); pinTween.kill(); gsap.set(stepsEl, { clearProps: 'transform' }); };
+  });
+
+  // perpetual gentle float on each step illustration (desktop only — on mobile
+  // the section is pinned and the images don't need extra motion)
+  if (!reduce) {
+    gsap.matchMedia().add('(min-width: 721px)', function () {
+      steps.forEach(function (step, i) {
+        var img = step.querySelector('.step__illust img');
+        if (!img) return;
+        gsap.to(img, {
+          y: '+=12',
+          duration: 3.4 + (i % 3) * 0.4,
+          repeat: -1,
+          yoyo: true,
+          ease: 'sine.inOut',
+          delay: i * 0.18
+        });
+      });
     });
   }
 

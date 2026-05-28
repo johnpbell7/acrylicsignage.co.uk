@@ -1022,30 +1022,27 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   .form__row { grid-template-columns: 1fr; gap: 0; }
   .footer__top { grid-template-columns: 1fr; gap: 2.5rem; }
 
-  /* process: horizontal scroll-snap rail on phones */
+  /* process: horizontal flex row, JS pin-scroll translates it as user scrolls */
   .steps {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    margin-inline: calc(var(--gut) * -1);
+    gap: 1.25rem;
+    width: max-content;
+    /* leading + trailing breathing room so the first card has a gutter at rest */
     padding: .5rem var(--gut) 1.25rem;
-    scrollbar-width: none;
+    margin: 0;
+    will-change: transform;
   }
-  .steps::-webkit-scrollbar { display: none; }
   .step, .step--alt {
-    flex: 0 0 84vw;
+    flex: 0 0 82vw;
     max-width: 360px;
-    scroll-snap-align: start;
     grid-template-columns: 1fr;
     gap: 1.1rem;
   }
   .step__illust { max-width: none; aspect-ratio: 4/3; width: 100%; }
-  /* subtle swipe cue under the rail */
+  /* subtle scroll cue under the section */
   .process .wrap::after {
-    content: "Swipe →";
+    content: "Scroll to step through →";
     display: block;
     font-size: .68rem;
     letter-spacing: .22em;
