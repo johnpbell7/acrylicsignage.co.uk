@@ -215,6 +215,28 @@
   }
 
   /* ============================================================
+     APPLICATIONS — fire all 8 cards at once when section enters
+     (avoids them animating in one-by-one as the user scrolls on mobile)
+     ============================================================ */
+  var appCards = gsap.utils.toArray('.apps-grid:not([hidden]) .app');
+  if (appCards.length && !reduce) {
+    gsap.set(gsap.utils.toArray('.app'), { autoAlpha: 0, y: 16 });
+    ScrollTrigger.create({
+      trigger: '#applications',
+      start: 'top 80%',
+      once: true,
+      onEnter: function () {
+        gsap.to(gsap.utils.toArray('.apps-grid:not([hidden]) .app'), {
+          autoAlpha: 1, y: 0,
+          duration: 0.45,
+          ease: 'power2.out',
+          stagger: { each: 0.035, from: 'start' }
+        });
+      }
+    });
+  }
+
+  /* ============================================================
      MATERIALS — stagger reveal
      ============================================================ */
   var mats = gsap.utils.toArray('.mat');
