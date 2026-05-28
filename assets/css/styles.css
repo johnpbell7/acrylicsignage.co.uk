@@ -1007,6 +1007,21 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   padding-top: .7rem;
 }
 .calc__step-body { min-width: 0; }
+.calc__step-h {
+  display: block;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin: .5rem 0 .25rem;
+  letter-spacing: -.005em;
+}
+.calc__step-help {
+  font-size: .8rem;
+  color: var(--ink-faint);
+  margin: 0 0 .9rem;
+  line-height: 1.5;
+  max-width: 50ch;
+}
 .field__hint {
   font-size: .75rem;
   color: var(--ink-faint);

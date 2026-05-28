@@ -360,64 +360,72 @@
     t.addEventListener('click', function () { showPane(t.getAttribute('data-tab')); });
   });
 
-  /* ---- 3D letters pricing engine ---- */
-  // hidden cost rates (per character at 100mm height) — the user only sees
-  // the final marked-up total
-  var MAT_RATE = {
-    foamboard_3: 1.10,
-    acm_3:       2.20,
-    acrylic_3:   2.40,
-    acrylic_5:   3.60,
-    acrylic_10:  6.00
+  /* ---- 3D letters pricing engine (area-based, mirrors MDP's input flow) ---- */
+  // hidden base cost rates — user only sees the marked-up total.
+  // Material rate per cm² of cut area (3mm thickness across the board, as MDP).
+  var MAT_PER_CM2 = {
+    foamboard: 0.011,   // 3mm foamboard, cheap internal
+    acm:       0.022,   // 3mm aluminium composite
+    acrylic:   0.028    // 3mm acrylic
   };
   var MAT_LABEL = {
-    foamboard_3: '3mm Foamboard',
-    acm_3:       '3mm Aluminium composite',
-    acrylic_3:   '3mm Acrylic',
-    acrylic_5:   '5mm Acrylic',
-    acrylic_10:  '10mm Acrylic'
+    foamboard: '3mm Foamboard',
+    acm:       '3mm Aluminium composite',
+    acrylic:   '3mm Acrylic'
   };
-  var FINISH_RATE  = { matt: 0,    gloss: 0.20, brushed: 0.55 };
+  // finish surcharge per cm² of cut area (brushed costs more in stock + waste)
+  var FIN_PER_CM2  = { matt: 0,      gloss: 0.003,  brushed: 0.010 };
   var FINISH_LABEL = { matt: 'Matt', gloss: 'Gloss', brushed: 'Brushed' };
-  var FIX_RATE     = { none: 0, vhb_tape: 0.40, sign_locators: 3.50, sign_locators_clad: 4.50, vhb_vinyl: 0.80 };
-  var FIX_LABEL    = {
+  // per-piece cutting handling — each separate letter / logo piece has a fixed cost
+  var PIECE_COST = 1.40;
+  // fixings — per piece
+  var FIX_RATE  = { none: 0, vhb_tape: 0.40, sign_locators: 3.50, sign_locators_clad: 4.50, vhb_vinyl: 0.80 };
+  var FIX_LABEL = {
     none: 'No fixings',
     vhb_tape: 'VHB tape + cardboard template',
     sign_locators: 'Sign locators + template',
     sign_locators_clad: 'Sign locators + cladding template',
     vhb_vinyl: 'VHB tape + vinyl template'
   };
-  var SETUP_FEE = 35;
-  var MINIMUM   = 60;
+  var SETUP_FEE = 25;
+  var MINIMUM   = 55;
   var MARKUP    = 1.30;  // 30% mark-up, hidden from user
 
-  // material → allowed finishes
+  // material → allowed finishes (matches MDP: foamboard matt only, acrylic gloss only, ACM all three)
   var FINISH_OPTIONS = {
-    foamboard_3: ['matt'],
-    acm_3:       ['matt', 'gloss', 'brushed'],
-    acrylic_3:   ['gloss'],
-    acrylic_5:   ['gloss'],
-    acrylic_10:  ['gloss']
+    foamboard: ['matt'],
+    acm:       ['matt', 'gloss', 'brushed'],
+    acrylic:   ['gloss']
   };
 
   function calcSpec() {
     return {
+      width:  parseInt(document.getElementById('c-width').value, 10)  || 0,
+      height: parseInt(document.getElementById('c-height').value, 10) || 0,
       text: (document.getElementById('c-text').value || '').trim(),
-      height: parseInt(document.getElementById('c-height').value, 10) || 100,
       qty: parseInt(document.getElementById('c-qty').value, 10) || 1,
       material: document.getElementById('c-material').value,
       finish: document.getElementById('c-finish').value,
       fixings: document.getElementById('c-fixings').value
     };
   }
+  function pieceCount(text) {
+    // strip whitespace + non-printable, count remaining as pieces
+    var clean = (text || '').replace(/\s+/g, '');
+    return clean.length;
+  }
   function calcPrice(s) {
-    var chars = (s.text || '').replace(/\s/g, '').length;
-    if (chars === 0) return 0;
-    var hFactor = (s.height || 100) / 100;
-    var rate = (MAT_RATE[s.material] || MAT_RATE.acm_3) * hFactor
-             + (FINISH_RATE[s.finish] || 0)
-             + (FIX_RATE[s.fixings] || 0);
-    var subtotal = (rate * chars) + SETUP_FEE;
+    if (!s.width || !s.height) return 0;
+    var pieces = pieceCount(s.text);
+    if (pieces === 0) return 0;
+
+    var areaCm2  = (s.width / 10) * (s.height / 10);          // bounding-box area
+    var matCost  = areaCm2 * (MAT_PER_CM2[s.material] || MAT_PER_CM2.acm);
+    var finCost  = areaCm2 * (FIN_PER_CM2[s.finish]   || 0);
+    var pieceCst = pieces  * PIECE_COST;
+    var fixCost  = pieces  * (FIX_RATE[s.fixings] || 0);
+
+    var subtotal = matCost + finCost + pieceCst + fixCost + SETUP_FEE;
     subtotal *= (s.qty || 1);
     var withMin = Math.max(MINIMUM, subtotal);
     return Math.round(withMin * MARKUP);  // markup applied silently
@@ -448,8 +456,8 @@
       var s = calcSpec();
       totalEl.textContent = fmtGBP(calcPrice(s));
       if (hintEl) {
-        var n = (s.text || '').replace(/\s/g, '').length;
-        hintEl.textContent = n + ' character' + (n === 1 ? '' : 's');
+        var n = pieceCount(s.text);
+        hintEl.textContent = n + ' piece' + (n === 1 ? '' : 's');
       }
     }
     calcForm.addEventListener('input', updateTotal);
@@ -470,12 +478,12 @@
 
     function renderQuoteSummary(s, price) {
       var rows = [
-        ['Text',     '"' + s.text + '"'],
-        ['Height',   s.height + 'mm'],
-        ['Quantity', s.qty + ' set' + (s.qty === 1 ? '' : 's')],
-        ['Material', MAT_LABEL[s.material]],
-        ['Finish',   FINISH_LABEL[s.finish]],
-        ['Fixings',  FIX_LABEL[s.fixings]]
+        ['Dimensions', s.width + ' × ' + s.height + ' mm'],
+        ['Text',       '"' + s.text + '" (' + pieceCount(s.text) + ' pieces)'],
+        ['Quantity',   s.qty + ' set' + (s.qty === 1 ? '' : 's')],
+        ['Material',   MAT_LABEL[s.material]],
+        ['Finish',     FINISH_LABEL[s.finish]],
+        ['Fixings',    FIX_LABEL[s.fixings]]
       ];
       quoteSpecEl.innerHTML = rows.map(function (r) {
         return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>';
@@ -485,9 +493,21 @@
 
     addBtn.addEventListener('click', function () {
       var s = calcSpec();
+      var bad = false;
+      [['c-width', s.width], ['c-height', s.height]].forEach(function (pair) {
+        var el = document.getElementById(pair[0]);
+        if (!pair[1] || pair[1] < 20) {
+          el.closest('.field').classList.add('invalid');
+          bad = true;
+        }
+      });
       if (!s.text) {
         textEl.closest('.field').classList.add('invalid');
-        textEl.focus();
+        bad = true;
+      }
+      if (bad) {
+        var firstBad = calcForm.querySelector('.field.invalid input');
+        if (firstBad) firstBad.focus();
         return;
       }
       var price = calcPrice(s);
@@ -505,7 +525,8 @@
       // pre-fill the details textarea with a friendly summary if it's empty
       var details = document.getElementById('f-details');
       if (details && !details.value.trim()) {
-        details.value = '3D letters quote: "' + s.text + '" at ' + s.height + 'mm, '
+        details.value = '3D letters quote: "' + s.text + '" (' + pieceCount(s.text) + ' pieces), '
+                      + s.width + ' × ' + s.height + ' mm overall, '
                       + MAT_LABEL[s.material] + ' (' + FINISH_LABEL[s.finish] + '), '
                       + FIX_LABEL[s.fixings] + ', ×' + s.qty + '. Estimated ' + fmtGBP(price) + '.';
       }
