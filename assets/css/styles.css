@@ -954,6 +954,172 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
 .form__status.err { background: #f3e2dd; color: #8a3318; }
 
 /* ============================================================
+   FORM TABS — toggle between general enquiry + 3D letters calc
+   ============================================================ */
+.enquiry__forms { width: 100%; }
+.form-tabs {
+  display: inline-flex;
+  gap: .35rem;
+  background: var(--paper-3);
+  padding: .35rem;
+  border-radius: 100px;
+  margin-bottom: 1.6rem;
+}
+.form-tab {
+  padding: .55rem 1.1rem;
+  border-radius: 100px;
+  font-size: .85rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background .3s var(--ease), color .3s var(--ease);
+  background: transparent;
+}
+.form-tab.is-active { background: var(--ink); color: #ffffff; font-weight: 600; }
+
+.form-pane { display: block; }
+.form-pane[hidden] { display: none; }
+
+/* ============================================================
+   3D LETTERS CALCULATOR
+   ============================================================ */
+.calc__intro {
+  font-size: .92rem;
+  color: var(--ink-soft);
+  margin-bottom: 1.4rem;
+  max-width: 50ch;
+}
+.calc__step {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: .9rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--line);
+}
+.calc__step:first-of-type { border-top: none; padding-top: .25rem; }
+.calc__step-num {
+  font-family: var(--display);
+  font-size: .72rem;
+  letter-spacing: .18em;
+  color: var(--ink-faint);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  padding-top: .7rem;
+}
+.calc__step-body { min-width: 0; }
+.field__hint {
+  font-size: .75rem;
+  color: var(--ink-faint);
+  margin-top: -.2rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.calc__total {
+  background: var(--ink);
+  color: #ffffff;
+  padding: 1.2rem 1.4rem;
+  border-radius: var(--radius-m);
+  margin: 1.6rem 0 1rem;
+}
+.calc__total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.calc__total-row span {
+  font-size: .82rem;
+  letter-spacing: .04em;
+  color: rgba(255,255,255,.7);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.calc__total-row strong {
+  font-family: var(--display);
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.calc__total small {
+  display: block;
+  margin-top: .5rem;
+  color: rgba(255,255,255,.55);
+  font-size: .75rem;
+  line-height: 1.5;
+}
+
+/* ============================================================
+   ATTACHED QUOTE (general form, when a calc quote has been added)
+   ============================================================ */
+.quote-attached {
+  background: var(--paper-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.4rem;
+}
+.quote-attached__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: .8rem;
+}
+.quote-attached__head strong {
+  font-size: .85rem;
+  letter-spacing: .04em;
+  font-weight: 600;
+}
+.quote-attached__actions { display: flex; gap: .4rem; }
+.quote-attached__edit,
+.quote-attached__remove {
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  background: transparent;
+  padding: .3rem .55rem;
+  border-radius: 100px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color .2s var(--ease), background .2s var(--ease);
+}
+.quote-attached__edit:hover { color: var(--ink); background: var(--paper-2); }
+.quote-attached__remove:hover { color: var(--accent-deep); }
+.quote-attached__spec {
+  margin: 0;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: .35rem .9rem;
+  font-size: .82rem;
+}
+.quote-attached__spec dt { color: var(--ink-faint); }
+.quote-attached__spec dd { color: var(--ink); margin: 0; font-weight: 500; }
+.quote-attached__price {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-top: .8rem;
+  margin-top: .8rem;
+  border-top: 1px solid var(--line);
+}
+.quote-attached__price span {
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 500;
+}
+.quote-attached__price strong {
+  font-family: var(--display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ============================================================
    FOOTER
    ============================================================ */
 .footer { background: var(--dark); color: var(--on-dark); position: relative; z-index: 2; }

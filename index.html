@@ -722,16 +722,35 @@
           </ul>
         </div>
 
-        <div data-reveal data-delay="1">
-          <!-- 
-            GoHighLevel wiring:
-            - Set GHL_WEBHOOK_URL in assets/js/main.js to your GHL
-              inbound-webhook trigger, OR
-            - Replace this <form> with the GHL form embed iframe.
-            Field "name" attributes are kept clean for GHL mapping.
-          -->
-          <form id="enquiryForm" novalidate>
+        <div class="enquiry__forms" data-reveal data-delay="1">
+
+          <!-- tab toggle between general enquiry + 3D letters calculator -->
+          <div class="form-tabs" role="tablist" aria-label="Form type">
+            <button class="form-tab is-active" type="button" data-tab="general" role="tab" aria-selected="true">General enquiry</button>
+            <button class="form-tab" type="button" data-tab="calc" role="tab" aria-selected="false">3D letters calculator</button>
+          </div>
+
+          <!-- GENERAL ENQUIRY -->
+          <form id="enquiryForm" class="form-pane is-active" data-pane="general" novalidate>
             <div class="form__status" role="status" aria-live="polite"></div>
+
+            <!-- quote summary card (revealed when user adds a 3D letters quote) -->
+            <div class="quote-attached" id="quoteAttached" hidden>
+              <div class="quote-attached__head">
+                <strong>3D letters quote attached</strong>
+                <div class="quote-attached__actions">
+                  <button type="button" class="quote-attached__edit" id="quoteEdit">Edit</button>
+                  <button type="button" class="quote-attached__remove" id="quoteRemove" aria-label="Remove attached quote">Remove</button>
+                </div>
+              </div>
+              <dl class="quote-attached__spec" id="quoteSpec"></dl>
+              <div class="quote-attached__price">
+                <span>Estimated total</span>
+                <strong id="quoteAttachedPrice">£—</strong>
+              </div>
+            </div>
+            <input type="hidden" name="quote_data" id="quoteData" value="" />
+            <input type="hidden" name="quote_price" id="quotePrice" value="" />
 
             <div class="form__row">
               <div class="field">
@@ -759,6 +778,7 @@
                 <option value="Corex fluted board">Corex fluted board</option>
                 <option value="Foamex PVC">Foamex PVC</option>
                 <option value="Cut-to-shape lettering">Cut-to-shape lettering</option>
+                <option value="3D letters (from calculator)">3D letters (from calculator)</option>
                 <option value="Not sure — please advise">Not sure — please advise</option>
               </select>
             </div>
@@ -776,6 +796,93 @@
             </button>
 
             <p class="form__alt">Or email us directly at <a href="mailto:hello@acrylicsignage.co.uk">hello@acrylicsignage.co.uk</a></p>
+          </form>
+
+          <!-- 3D LETTERS CALCULATOR -->
+          <form id="calcForm" class="form-pane" data-pane="calc" hidden novalidate>
+            <p class="calc__intro">Configure your cut letters and we'll work out an indicative price. No commitment — add it to an enquiry when you're ready.</p>
+
+            <div class="calc__step">
+              <span class="calc__step-num">01</span>
+              <div class="calc__step-body">
+                <div class="field">
+                  <label for="c-text">What does it say?</label>
+                  <input id="c-text" name="text" type="text" placeholder="e.g. THE DAILY GRIND" maxlength="60" required />
+                  <span class="field__hint" id="c-text-hint">0 characters</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="calc__step">
+              <span class="calc__step-num">02</span>
+              <div class="calc__step-body">
+                <div class="form__row">
+                  <div class="field">
+                    <label for="c-height">Letter height (mm)</label>
+                    <input id="c-height" name="height" type="number" min="20" max="500" step="5" value="100" />
+                  </div>
+                  <div class="field">
+                    <label for="c-qty">Quantity (sets)</label>
+                    <input id="c-qty" name="qty" type="number" min="1" max="100" value="1" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="calc__step">
+              <span class="calc__step-num">03</span>
+              <div class="calc__step-body">
+                <div class="form__row">
+                  <div class="field">
+                    <label for="c-material">Material</label>
+                    <select id="c-material" name="material">
+                      <option value="foamboard_3">3mm Foamboard</option>
+                      <option value="acm_3" selected>3mm Aluminium composite</option>
+                      <option value="acrylic_3">3mm Acrylic</option>
+                      <option value="acrylic_5">5mm Acrylic</option>
+                      <option value="acrylic_10">10mm Acrylic</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="c-finish">Finish</label>
+                    <select id="c-finish" name="finish">
+                      <option value="matt">Matt</option>
+                      <option value="gloss" selected>Gloss</option>
+                      <option value="brushed">Brushed</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="calc__step">
+              <span class="calc__step-num">04</span>
+              <div class="calc__step-body">
+                <div class="field">
+                  <label for="c-fixings">Fixings &amp; mounting</label>
+                  <select id="c-fixings" name="fixings">
+                    <option value="none">No fixings</option>
+                    <option value="vhb_tape" selected>VHB tape + cardboard template</option>
+                    <option value="sign_locators">Sign locators + template</option>
+                    <option value="sign_locators_clad">Sign locators + cladding template</option>
+                    <option value="vhb_vinyl">VHB tape + vinyl template</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="calc__total" aria-live="polite">
+              <div class="calc__total-row">
+                <span>Estimated total</span>
+                <strong id="calcTotal">£—</strong>
+              </div>
+              <small>Includes setup, materials and fixings. Delivery extra. Final price confirmed after we've checked your artwork.</small>
+            </div>
+
+            <button type="button" class="form__submit" id="calcAdd">
+              <span class="label">Add to enquiry</span>
+              <span data-icon="arrow"></span>
+            </button>
           </form>
         </div>
       </div>

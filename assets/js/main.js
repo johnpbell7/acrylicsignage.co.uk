@@ -330,6 +330,200 @@
   var form = document.getElementById('enquiryForm');
   if (!form) return;
 
+  /* ============================================================
+     FORM TAB TOGGLE  +  3D LETTERS CALCULATOR
+     ------------------------------------------------------------
+     - Two form panes ("general" + "calc") with a tab switcher
+     - Calculator computes a live price using a transparent formula
+       that mimics MDP Supplies' flat-cut letter pricing
+     - 30% mark-up is applied silently in the price function — the
+       user only ever sees the marked-up total
+     - "Add to enquiry" copies the quote into the general form
+       and shows a summary card; submitting the general form sends
+       contact info + the attached quote together
+     ============================================================ */
+  var formTabs  = document.querySelectorAll('.form-tab');
+  var formPanes = document.querySelectorAll('.form-pane');
+  function showPane(name) {
+    formTabs.forEach(function (t) {
+      var on = t.getAttribute('data-tab') === name;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    formPanes.forEach(function (p) {
+      var on = p.getAttribute('data-pane') === name;
+      p.hidden = !on;
+      p.classList.toggle('is-active', on);
+    });
+  }
+  formTabs.forEach(function (t) {
+    t.addEventListener('click', function () { showPane(t.getAttribute('data-tab')); });
+  });
+
+  /* ---- 3D letters pricing engine ---- */
+  // hidden cost rates (per character at 100mm height) — the user only sees
+  // the final marked-up total
+  var MAT_RATE = {
+    foamboard_3: 1.10,
+    acm_3:       2.20,
+    acrylic_3:   2.40,
+    acrylic_5:   3.60,
+    acrylic_10:  6.00
+  };
+  var MAT_LABEL = {
+    foamboard_3: '3mm Foamboard',
+    acm_3:       '3mm Aluminium composite',
+    acrylic_3:   '3mm Acrylic',
+    acrylic_5:   '5mm Acrylic',
+    acrylic_10:  '10mm Acrylic'
+  };
+  var FINISH_RATE  = { matt: 0,    gloss: 0.20, brushed: 0.55 };
+  var FINISH_LABEL = { matt: 'Matt', gloss: 'Gloss', brushed: 'Brushed' };
+  var FIX_RATE     = { none: 0, vhb_tape: 0.40, sign_locators: 3.50, sign_locators_clad: 4.50, vhb_vinyl: 0.80 };
+  var FIX_LABEL    = {
+    none: 'No fixings',
+    vhb_tape: 'VHB tape + cardboard template',
+    sign_locators: 'Sign locators + template',
+    sign_locators_clad: 'Sign locators + cladding template',
+    vhb_vinyl: 'VHB tape + vinyl template'
+  };
+  var SETUP_FEE = 35;
+  var MINIMUM   = 60;
+  var MARKUP    = 1.30;  // 30% mark-up, hidden from user
+
+  // material → allowed finishes
+  var FINISH_OPTIONS = {
+    foamboard_3: ['matt'],
+    acm_3:       ['matt', 'gloss', 'brushed'],
+    acrylic_3:   ['gloss'],
+    acrylic_5:   ['gloss'],
+    acrylic_10:  ['gloss']
+  };
+
+  function calcSpec() {
+    return {
+      text: (document.getElementById('c-text').value || '').trim(),
+      height: parseInt(document.getElementById('c-height').value, 10) || 100,
+      qty: parseInt(document.getElementById('c-qty').value, 10) || 1,
+      material: document.getElementById('c-material').value,
+      finish: document.getElementById('c-finish').value,
+      fixings: document.getElementById('c-fixings').value
+    };
+  }
+  function calcPrice(s) {
+    var chars = (s.text || '').replace(/\s/g, '').length;
+    if (chars === 0) return 0;
+    var hFactor = (s.height || 100) / 100;
+    var rate = (MAT_RATE[s.material] || MAT_RATE.acm_3) * hFactor
+             + (FINISH_RATE[s.finish] || 0)
+             + (FIX_RATE[s.fixings] || 0);
+    var subtotal = (rate * chars) + SETUP_FEE;
+    subtotal *= (s.qty || 1);
+    var withMin = Math.max(MINIMUM, subtotal);
+    return Math.round(withMin * MARKUP);  // markup applied silently
+  }
+  function fmtGBP(n) {
+    if (!n) return '£—';
+    return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  var calcForm = document.getElementById('calcForm');
+  if (calcForm) {
+    var totalEl = document.getElementById('calcTotal');
+    var textEl  = document.getElementById('c-text');
+    var hintEl  = document.getElementById('c-text-hint');
+    var matEl   = document.getElementById('c-material');
+    var finEl   = document.getElementById('c-finish');
+
+    // restrict finish options based on selected material
+    function syncFinish() {
+      var allowed = FINISH_OPTIONS[matEl.value] || ['gloss'];
+      Array.from(finEl.options).forEach(function (opt) {
+        opt.disabled = allowed.indexOf(opt.value) === -1;
+      });
+      if (allowed.indexOf(finEl.value) === -1) finEl.value = allowed[0];
+    }
+
+    function updateTotal() {
+      var s = calcSpec();
+      totalEl.textContent = fmtGBP(calcPrice(s));
+      if (hintEl) {
+        var n = (s.text || '').replace(/\s/g, '').length;
+        hintEl.textContent = n + ' character' + (n === 1 ? '' : 's');
+      }
+    }
+    calcForm.addEventListener('input', updateTotal);
+    calcForm.addEventListener('change', function () { syncFinish(); updateTotal(); });
+    syncFinish();
+    updateTotal();
+
+    /* ---- Add to enquiry: copy spec + price into general form, switch tab ---- */
+    var addBtn       = document.getElementById('calcAdd');
+    var quoteAtt     = document.getElementById('quoteAttached');
+    var quoteSpecEl  = document.getElementById('quoteSpec');
+    var quotePriceEl = document.getElementById('quoteAttachedPrice');
+    var quoteData    = document.getElementById('quoteData');
+    var quotePrice   = document.getElementById('quotePrice');
+    var quoteEdit    = document.getElementById('quoteEdit');
+    var quoteRemove  = document.getElementById('quoteRemove');
+    var typeSel      = document.getElementById('f-type');
+
+    function renderQuoteSummary(s, price) {
+      var rows = [
+        ['Text',     '"' + s.text + '"'],
+        ['Height',   s.height + 'mm'],
+        ['Quantity', s.qty + ' set' + (s.qty === 1 ? '' : 's')],
+        ['Material', MAT_LABEL[s.material]],
+        ['Finish',   FINISH_LABEL[s.finish]],
+        ['Fixings',  FIX_LABEL[s.fixings]]
+      ];
+      quoteSpecEl.innerHTML = rows.map(function (r) {
+        return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>';
+      }).join('');
+      quotePriceEl.textContent = fmtGBP(price);
+    }
+
+    addBtn.addEventListener('click', function () {
+      var s = calcSpec();
+      if (!s.text) {
+        textEl.closest('.field').classList.add('invalid');
+        textEl.focus();
+        return;
+      }
+      var price = calcPrice(s);
+      // attach to general form
+      quoteData.value  = JSON.stringify(s);
+      quotePrice.value = price;
+      renderQuoteSummary(s, price);
+      quoteAtt.hidden = false;
+      // helpful default — switch sign_type to "3D letters"
+      if (typeSel) {
+        for (var i = 0; i < typeSel.options.length; i++) {
+          if (/3d letters/i.test(typeSel.options[i].value)) { typeSel.selectedIndex = i; break; }
+        }
+      }
+      // pre-fill the details textarea with a friendly summary if it's empty
+      var details = document.getElementById('f-details');
+      if (details && !details.value.trim()) {
+        details.value = '3D letters quote: "' + s.text + '" at ' + s.height + 'mm, '
+                      + MAT_LABEL[s.material] + ' (' + FINISH_LABEL[s.finish] + '), '
+                      + FIX_LABEL[s.fixings] + ', ×' + s.qty + '. Estimated ' + fmtGBP(price) + '.';
+      }
+      showPane('general');
+      // scroll to the attached quote so the user sees it landed
+      setTimeout(function () {
+        quoteAtt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 80);
+    });
+
+    quoteEdit && quoteEdit.addEventListener('click', function () { showPane('calc'); });
+    quoteRemove && quoteRemove.addEventListener('click', function () {
+      quoteAtt.hidden = true;
+      quoteData.value = '';
+      quotePrice.value = '';
+    });
+  }
+
   var statusBox = form.querySelector('.form__status');
   var submitBtn = form.querySelector('.form__submit');
 
@@ -379,6 +573,15 @@
       source: 'acrylicsignage.co.uk',
       submitted_at: new Date().toISOString()
     };
+    // if a 3D letters quote is attached, bolt it on
+    var qd = (form.quote_data && form.quote_data.value) || '';
+    var qp = (form.quote_price && form.quote_price.value) || '';
+    if (qd) {
+      try {
+        data.quote = JSON.parse(qd);
+        data.quote_price_gbp = Number(qp) || null;
+      } catch (_) { /* ignore bad JSON */ }
+    }
 
     submitBtn.classList.add('loading');
     submitBtn.disabled = true;
