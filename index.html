@@ -807,9 +807,16 @@
               <div class="calc__step-body">
                 <label class="calc__step-h" for="c-text">What does it say?</label>
                 <p class="calc__step-help">Enter the text so we can count the pieces. If your artwork is a logo with separate shapes, enter the number of pieces (e.g. "123456" for a 6-piece logo).</p>
-                <div class="field">
-                  <input id="c-text" name="text" type="text" placeholder="e.g. THE DAILY GRIND" maxlength="60" required />
-                  <span class="field__hint" id="c-text-hint">0 pieces</span>
+                <div class="form__row form__row--text">
+                  <div class="field">
+                    <label for="c-text" class="sr-only">Text</label>
+                    <input id="c-text" name="text" type="text" placeholder="e.g. THE DAILY GRIND" maxlength="60" required />
+                    <span class="field__hint" id="c-text-hint">0 pieces</span>
+                  </div>
+                  <div class="field">
+                    <label for="c-qty">Qty</label>
+                    <input id="c-qty" name="qty" type="number" min="1" max="100" value="1" />
+                  </div>
                 </div>
               </div>
             </div>
@@ -819,7 +826,7 @@
               <div class="calc__step-body">
                 <label class="calc__step-h">Dimensions</label>
                 <p class="calc__step-help">Overall size of the cut lettering job — tip-to-tip of the full layout in millimetres.</p>
-                <div class="form__row form__row--dims">
+                <div class="form__row">
                   <div class="field">
                     <label for="c-width">Width (mm)</label>
                     <input id="c-width" name="width" type="number" min="20" max="3000" step="10" value="1000" required />
@@ -827,10 +834,6 @@
                   <div class="field">
                     <label for="c-height">Height (mm)</label>
                     <input id="c-height" name="height" type="number" min="20" max="2000" step="10" value="500" required />
-                  </div>
-                  <div class="field">
-                    <label for="c-qty">Qty</label>
-                    <input id="c-qty" name="qty" type="number" min="1" max="100" value="1" />
                   </div>
                 </div>
               </div>
