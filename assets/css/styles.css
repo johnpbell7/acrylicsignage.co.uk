@@ -1007,11 +1007,26 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   .step__illust { max-width: 460px; aspect-ratio: 4/3; }
 }
 @media (max-width: 720px) {
-  .nav__links { 
-    position: fixed; inset: 74px 0 auto 0; background: var(--paper); 
-    flex-direction: column; align-items: flex-start; gap: 0; padding: 1rem var(--gut) 2rem;
+  .nav__links {
+    position: fixed;
+    /* sit flush below the actual nav (which now includes safe-area padding on notched devices) */
+    top: calc(74px + env(safe-area-inset-top, 0px));
+    right: 0;
+    left: 0;
+    bottom: auto;
+    /* clip if the link list ever exceeds available space */
+    max-height: calc(100dvh - 74px - env(safe-area-inset-top, 0px));
+    overflow-y: auto;
+    background: #ffffff;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: .75rem var(--gut) 1rem;
     border-bottom: 1px solid var(--line);
-    transform: translateY(-120%); transition: transform .4s var(--ease); z-index: 49;
+    box-shadow: 0 12px 24px -16px rgba(20,23,26,.18);
+    transform: translateY(-120%);
+    transition: transform .4s var(--ease);
+    z-index: 49;
   }
   body.menu-open .nav__links { transform: translateY(0); }
   .nav__links a { padding: .9rem 0; width: 100%; border-bottom: 1px solid var(--line); font-size: 1.05rem; }
