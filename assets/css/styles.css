@@ -320,6 +320,31 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
    right. No glassy fake-brand card, no gradient box.
    ============================================================ */
 .hero { padding-top: clamp(3rem, 7vw, 6rem); padding-bottom: clamp(3rem,6vw,5rem); position: relative; z-index: 2; }
+
+/* decorative acrylic-panel overlay — sits over the hero, pointer-events: none
+   so it never blocks text selection or carousel swipes */
+.hero__overlay {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;            /* in front of grid (z 0) and carousel slides */
+  user-select: none;
+  /* desktop: tucked between the text and carousel, slight overlap on the
+     carousel's left edge */
+  top: clamp(.5rem, 3vw, 2.5rem);
+  right: 38%;
+  width: clamp(140px, 18vw, 240px);
+  height: auto;
+  filter: drop-shadow(0 18px 36px rgba(20,23,26,.18));
+}
+@media (max-width: 1000px) {
+  /* mobile: top-right of the text column, sits behind/around text but
+     doesn't push layout because it's absolute */
+  .hero__overlay {
+    top: clamp(.5rem, 5vw, 2rem);
+    right: clamp(.5rem, 4vw, 1.5rem);
+    width: clamp(110px, 28vw, 180px);
+  }
+}
 .hero__grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: clamp(2.5rem, 6vw, 6rem); align-items: center; }
 .hero__head { font-size: clamp(2.6rem, 5.8vw, 5rem); line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; }
 .hero__head .hh-line { display: block; overflow: hidden; padding-bottom: .04em; white-space: nowrap; }
