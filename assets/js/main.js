@@ -4,6 +4,12 @@
 (function () {
   'use strict';
 
+  /* ---- always land at the top on (re)load, regardless of browser memory ---- */
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
+  // belt-and-braces: catch any late layout shifts that bump the position
+  window.addEventListener('load', function () { window.scrollTo(0, 0); });
+
   /* ---- intro overlay: short welcome — plays every page load ---- */
   (function () {
     var intro = document.getElementById('intro');
