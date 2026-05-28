@@ -910,9 +910,9 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
 
 .form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
 /* text + qty: roomy text input + narrow qty stepper on the right.
-   align-items: end so the two inputs line up regardless of label height */
+   align-items: end so both inputs line up along the bottom edge */
 .form__row--text { grid-template-columns: 1fr 88px; align-items: end; }
-.form__row--text .field:first-child > .field__hint { order: 2; }
+.form__row--text + .field__hint { display: block; margin-top: .35rem; }
 /* visually hidden label (input still labelled for screen readers) */
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
