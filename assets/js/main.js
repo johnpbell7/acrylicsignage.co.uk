@@ -442,7 +442,6 @@
   if (calcForm) {
     var totalEl = document.getElementById('calcTotal');
     var textEl  = document.getElementById('c-text');
-    var hintEl  = document.getElementById('c-text-hint');
     var matEl   = document.getElementById('c-material');
     var finEl   = document.getElementById('c-finish');
 
@@ -458,10 +457,6 @@
     function updateTotal() {
       var s = calcSpec();
       totalEl.textContent = fmtGBP(calcPrice(s));
-      if (hintEl) {
-        var n = pieceCount(s.text);
-        hintEl.textContent = n + ' piece' + (n === 1 ? '' : 's');
-      }
     }
     calcForm.addEventListener('input', updateTotal);
     calcForm.addEventListener('change', function () { syncFinish(); updateTotal(); });

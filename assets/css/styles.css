@@ -912,7 +912,6 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
 /* text + qty: roomy text input + narrow qty stepper on the right.
    align-items: end so both inputs line up along the bottom edge */
 .form__row--text { grid-template-columns: 1fr 88px; align-items: end; }
-.form__row--text + .field__hint { display: block; margin-top: .35rem; }
 /* visually hidden label (input still labelled for screen readers) */
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -1094,12 +1093,6 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   margin: 0 0 .9rem;
   line-height: 1.5;
   max-width: 50ch;
-}
-.field__hint {
-  font-size: .75rem;
-  color: var(--ink-faint);
-  margin-top: -.2rem;
-  font-variant-numeric: tabular-nums;
 }
 
 /* ---- per-step continue / done button ---- */
