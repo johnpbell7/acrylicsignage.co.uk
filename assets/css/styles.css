@@ -1375,3 +1375,126 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   .mat { flex: 0 0 80%; scroll-snap-align: start; }
   .mat-rail__hint { display: block; }
 }
+
+/* ============================================================
+   ENQUIRY SENT — SUCCESS MODAL
+   ============================================================ */
+.sent {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--gut);
+}
+.sent[hidden] { display: none; }
+body.sent-open { overflow: hidden; }
+
+.sent__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 15, 17, .55);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  animation: sentFade .25s ease forwards;
+}
+
+.sent__card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  background: var(--paper-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-l);
+  padding: 2.4rem 2rem 2rem;
+  text-align: center;
+  box-shadow: 0 30px 60px -24px rgba(13, 15, 17, .5);
+  transform: translateY(12px) scale(.97);
+  opacity: 0;
+  animation: sentPop .42s var(--ease, cubic-bezier(.22,.61,.36,1)) .06s forwards;
+}
+
+.sent__close {
+  position: absolute;
+  top: .9rem;
+  right: .9rem;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  border-radius: 100px;
+  color: var(--ink-faint);
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease;
+}
+.sent__close:hover { color: var(--ink); background: var(--paper-3); }
+.sent__close [data-icon] { width: 18px; height: 18px; display: inline-flex; }
+.sent__close [data-icon] svg { width: 100%; height: 100%; }
+
+.sent__badge {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.25rem;
+  border-radius: 100px;
+  background: var(--ink);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(.4);
+  opacity: 0;
+  animation: sentBadge .5s cubic-bezier(.34,1.56,.64,1) .22s forwards;
+}
+.sent__badge [data-icon] { width: 30px; height: 30px; display: inline-flex; }
+.sent__badge [data-icon] svg { width: 100%; height: 100%; }
+
+.sent__title {
+  font-family: var(--display);
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -.015em;
+  color: var(--ink);
+  margin: 0 0 .55rem;
+}
+.sent__msg {
+  font-size: .92rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin: 0 auto 1.6rem;
+  max-width: 34ch;
+}
+
+.sent__done {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  background: var(--ink);
+  color: #fff;
+  border: 0;
+  border-radius: 100px;
+  padding: .75rem 1.6rem;
+  font-size: .85rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  cursor: pointer;
+  transition: opacity .2s ease;
+}
+.sent__done:hover { opacity: .88; }
+.sent__done [data-icon] { width: 1em; height: 1em; display: inline-flex; }
+.sent__done [data-icon] svg { width: 100%; height: 100%; }
+
+@keyframes sentFade { to { opacity: 1; } }
+@keyframes sentPop  { to { opacity: 1; transform: none; } }
+@keyframes sentBadge { to { opacity: 1; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .sent__overlay,
+  .sent__card,
+  .sent__badge { animation-duration: .01ms; animation-delay: 0ms; }
+}
