@@ -330,6 +330,9 @@
   var form = document.getElementById('enquiryForm');
   if (!form) return;
 
+  // assigned by the calculator block; clears the quote basket after a send
+  var resetCalcBasket = function () {};
+
   /* ============================================================
      FORM TAB TOGGLE  +  3D LETTERS CALCULATOR
      ------------------------------------------------------------
@@ -442,6 +445,8 @@
     var hintEl  = document.getElementById('c-text-hint');
     var matEl   = document.getElementById('c-material');
     var finEl   = document.getElementById('c-finish');
+    var prevText  = document.getElementById('calcPreviewText');
+    var prevStage = prevText && prevText.closest('.calc__preview-stage');
 
     // restrict finish options based on selected material
     function syncFinish() {
@@ -458,6 +463,16 @@
       if (hintEl) {
         var n = pieceCount(s.text);
         hintEl.textContent = n + ' piece' + (n === 1 ? '' : 's');
+      }
+      // live lettering preview — text + material/finish tint
+      if (prevText) {
+        var hasText = !!s.text;
+        prevText.textContent = hasText ? s.text : 'Your text here';
+        prevText.classList.toggle('is-empty', !hasText);
+      }
+      if (prevStage) {
+        prevStage.setAttribute('data-material', s.material);
+        prevStage.setAttribute('data-finish', s.finish);
       }
     }
     calcForm.addEventListener('input', updateTotal);
@@ -563,30 +578,114 @@
 
     openStep(0, false);
 
-    /* ---- Add to enquiry: copy spec + price into general form, switch tab ---- */
-    var addBtn       = document.getElementById('calcAdd');
-    var quoteAtt     = document.getElementById('quoteAttached');
-    var quoteSpecEl  = document.getElementById('quoteSpec');
-    var quotePriceEl = document.getElementById('quoteAttachedPrice');
-    var quoteData    = document.getElementById('quoteData');
-    var quotePrice   = document.getElementById('quotePrice');
-    var quoteEdit    = document.getElementById('quoteEdit');
-    var quoteRemove  = document.getElementById('quoteRemove');
-    var typeSel      = document.getElementById('f-type');
+    /* ---- Add to enquiry + multi-item quote basket ----
+       Adding a configured sign drops it into a basket on the general form.
+       "Add another sign" sends you back to a fresh calculator, so a single
+       enquiry can carry several quotes. Each basket item can be edited (loads
+       it back into the calculator) or removed. */
+    var addBtn      = document.getElementById('calcAdd');
+    var addBtnLabel = addBtn.querySelector('.label');
+    var basketEl    = document.getElementById('basket');
+    var basketList  = document.getElementById('basketList');
+    var basketCount = document.getElementById('basketCount');
+    var basketTotal = document.getElementById('basketTotal');
+    var basketAdd   = document.getElementById('basketAdd');
+    var quotesData  = document.getElementById('quotesData');
+    var typeSel     = document.getElementById('f-type');
+    var detailsEl   = document.getElementById('f-details');
 
-    function renderQuoteSummary(s, price) {
-      var rows = [
-        ['Dimensions', s.width + ' × ' + s.height + ' mm'],
-        ['Text',       '"' + s.text + '" (' + pieceCount(s.text) + ' pieces)'],
-        ['Quantity',   s.qty + ' set' + (s.qty === 1 ? '' : 's')],
-        ['Material',   MAT_LABEL[s.material]],
-        ['Finish',     FINISH_LABEL[s.finish]],
-        ['Fixings',    FIX_LABEL[s.fixings]]
-      ];
-      quoteSpecEl.innerHTML = rows.map(function (r) {
-        return '<dt>' + r[0] + '</dt><dd>' + r[1] + '</dd>';
+    var basket      = [];    // [{ spec, price }]
+    var editIndex   = null;  // basket index being re-edited, or null for a new add
+    var autoDetails = '';    // last details string we auto-wrote (don't clobber user edits)
+
+    function esc(str) {
+      return String(str).replace(/[&<>"']/g, function (c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+    function specLine(s) {
+      var n = pieceCount(s.text);
+      return s.width + ' × ' + s.height + ' mm · ' + MAT_LABEL[s.material]
+           + ' · ' + FINISH_LABEL[s.finish] + ' · ' + FIX_LABEL[s.fixings]
+           + ' · ' + n + ' piece' + (n === 1 ? '' : 's');
+    }
+    function basketTotalValue() {
+      return basket.reduce(function (t, q) { return t + (q.price || 0); }, 0);
+    }
+    function basketSummaryText() {
+      if (!basket.length) return '';
+      var lines = basket.map(function (q, i) {
+        var s = q.spec;
+        return (i + 1) + '. "' + s.text + '" — ' + s.width + '×' + s.height + 'mm, '
+             + MAT_LABEL[s.material] + ' (' + FINISH_LABEL[s.finish] + '), '
+             + FIX_LABEL[s.fixings] + ', ×' + s.qty + ' — ' + fmtGBP(q.price);
+      });
+      var head = basket.length === 1 ? '3D letters quote:' : '3D letters quotes (' + basket.length + '):';
+      return head + '\n' + lines.join('\n') + '\nEstimated total ' + fmtGBP(basketTotalValue()) + '.';
+    }
+
+    function renderBasket() {
+      basketEl.hidden = basket.length === 0;
+      basketCount.textContent = basket.length ? '(' + basket.length + ')' : '';
+      basketTotal.textContent = fmtGBP(basketTotalValue());
+      basketList.innerHTML = basket.map(function (q, i) {
+        var s = q.spec;
+        return '<li class="basket__item">'
+          +   '<div class="basket__item-main">'
+          +     '<span class="basket__item-title">“' + esc(s.text) + '” · ×' + s.qty + '</span>'
+          +     '<span class="basket__item-spec">' + esc(specLine(s)) + '</span>'
+          +   '</div>'
+          +   '<div class="basket__item-side">'
+          +     '<span class="basket__item-price">' + fmtGBP(q.price) + '</span>'
+          +     '<div class="basket__item-actions">'
+          +       '<button type="button" data-basket-edit="' + i + '">Edit</button>'
+          +       '<button type="button" data-basket-remove="' + i + '">Remove</button>'
+          +     '</div>'
+          +   '</div>'
+          + '</li>';
       }).join('');
-      quotePriceEl.textContent = fmtGBP(price);
+
+      // keep the hidden field, sign-type and details textarea in sync
+      quotesData.value = basket.length ? JSON.stringify(basket) : '';
+      if (basket.length && typeSel) {
+        for (var i = 0; i < typeSel.options.length; i++) {
+          if (/3d letters/i.test(typeSel.options[i].value)) { typeSel.selectedIndex = i; break; }
+        }
+      }
+      if (detailsEl && (detailsEl.value.trim() === '' || detailsEl.value === autoDetails)) {
+        autoDetails = basketSummaryText();
+        detailsEl.value = autoDetails;
+      }
+    }
+
+    // load a saved spec back into the calculator inputs
+    function loadSpec(s) {
+      textEl.value = s.text;
+      document.getElementById('c-qty').value = s.qty;
+      document.getElementById('c-width').value = s.width;
+      document.getElementById('c-height').value = s.height;
+      matEl.value = s.material;
+      syncFinish();
+      finEl.value = s.finish;
+      document.getElementById('c-fixings').value = s.fixings;
+      updateTotal();
+    }
+    // reset the calculator to defaults for a brand-new sign
+    function resetCalc() {
+      textEl.value = '';
+      document.getElementById('c-qty').value = 1;
+      document.getElementById('c-width').value = 1000;
+      document.getElementById('c-height').value = 500;
+      matEl.value = 'acm';
+      syncFinish();
+      finEl.value = 'gloss';
+      document.getElementById('c-fixings').value = 'none';
+      for (var i = 0; i < completed.length; i++) completed[i] = false;
+      openStep(0, false);
+      updateTotal();
+    }
+    function setAddMode() {
+      if (addBtnLabel) addBtnLabel.textContent = (editIndex === null) ? 'Add to enquiry' : 'Update quote';
     }
 
     addBtn.addEventListener('click', function () {
@@ -594,53 +693,60 @@
       var bad = false;
       [['c-width', s.width], ['c-height', s.height]].forEach(function (pair) {
         var el = document.getElementById(pair[0]);
-        if (!pair[1] || pair[1] < 20) {
-          el.closest('.field').classList.add('invalid');
-          bad = true;
-        }
+        if (!pair[1] || pair[1] < 20) { el.closest('.field').classList.add('invalid'); bad = true; }
       });
-      if (!s.text) {
-        textEl.closest('.field').classList.add('invalid');
-        bad = true;
-      }
+      if (!s.text) { textEl.closest('.field').classList.add('invalid'); bad = true; }
       if (bad) {
         var firstBad = calcForm.querySelector('.field.invalid input');
         if (firstBad) firstBad.focus();
         return;
       }
       var price = calcPrice(s);
-      // attach to general form
-      quoteData.value  = JSON.stringify(s);
-      quotePrice.value = price;
-      renderQuoteSummary(s, price);
-      quoteAtt.hidden = false;
-      // helpful default — switch sign_type to "3D letters"
-      if (typeSel) {
-        for (var i = 0; i < typeSel.options.length; i++) {
-          if (/3d letters/i.test(typeSel.options[i].value)) { typeSel.selectedIndex = i; break; }
-        }
-      }
-      // pre-fill the details textarea with a friendly summary if it's empty
-      var details = document.getElementById('f-details');
-      if (details && !details.value.trim()) {
-        details.value = '3D letters quote: "' + s.text + '" (' + pieceCount(s.text) + ' pieces), '
-                      + s.width + ' × ' + s.height + ' mm overall, '
-                      + MAT_LABEL[s.material] + ' (' + FINISH_LABEL[s.finish] + '), '
-                      + FIX_LABEL[s.fixings] + ', ×' + s.qty + '. Estimated ' + fmtGBP(price) + '.';
-      }
+      if (editIndex !== null) { basket[editIndex] = { spec: s, price: price }; editIndex = null; }
+      else { basket.push({ spec: s, price: price }); }
+      setAddMode();
+      renderBasket();
       showPane('general');
-      // scroll to the attached quote so the user sees it landed
-      setTimeout(function () {
-        quoteAtt.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 80);
+      setTimeout(function () { basketEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 80);
     });
 
-    quoteEdit && quoteEdit.addEventListener('click', function () { showPane('calc'); });
-    quoteRemove && quoteRemove.addEventListener('click', function () {
-      quoteAtt.hidden = true;
-      quoteData.value = '';
-      quotePrice.value = '';
+    // "Add another sign" — back to a fresh calculator
+    basketAdd.addEventListener('click', function () {
+      editIndex = null;
+      setAddMode();
+      resetCalc();
+      showPane('calc');
+      setTimeout(function () { textEl.focus(); }, 80);
     });
+
+    // edit / remove a basket item (event delegation)
+    basketList.addEventListener('click', function (e) {
+      var editBtn = e.target.closest('[data-basket-edit]');
+      var rmBtn   = e.target.closest('[data-basket-remove]');
+      if (editBtn) {
+        editIndex = +editBtn.getAttribute('data-basket-edit');
+        setAddMode();
+        loadSpec(basket[editIndex].spec);
+        for (var i = 0; i < completed.length; i++) completed[i] = true;
+        openStep(-1, false);  // show every step as a summary; tweak then Update
+        showPane('calc');
+        setTimeout(function () { calcForm.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80);
+      } else if (rmBtn) {
+        basket.splice(+rmBtn.getAttribute('data-basket-remove'), 1);
+        if (editIndex !== null) { editIndex = null; setAddMode(); }
+        renderBasket();
+      }
+    });
+
+    // expose a reset so the basket + calculator clear after a successful enquiry
+    resetCalcBasket = function () {
+      basket = [];
+      editIndex = null;
+      autoDetails = '';
+      setAddMode();
+      renderBasket();
+      resetCalc();  // calculator back to defaults, step 1 open
+    };
   }
 
   var statusBox = form.querySelector('.form__status');
@@ -725,13 +831,17 @@
       source: 'acrylicsignage.co.uk',
       submitted_at: new Date().toISOString()
     };
-    // if a 3D letters quote is attached, bolt it on
-    var qd = (form.quote_data && form.quote_data.value) || '';
-    var qp = (form.quote_price && form.quote_price.value) || '';
+    // if any 3D letters quotes are in the basket, bolt them on
+    var qd = (form.quotes_data && form.quotes_data.value) || '';
     if (qd) {
       try {
-        data.quote = JSON.parse(qd);
-        data.quote_price_gbp = Number(qp) || null;
+        var quotes = JSON.parse(qd);
+        if (Array.isArray(quotes) && quotes.length) {
+          data.quotes = quotes;
+          data.quotes_total_gbp = quotes.reduce(function (t, q) {
+            return t + (Number(q.price) || 0);
+          }, 0);
+        }
       } catch (_) { /* ignore bad JSON */ }
     }
 
@@ -745,6 +855,7 @@
         submitBtn.disabled = false;
         openSent(data.name);
         form.reset();
+        resetCalcBasket();
         clearStatus();
       }, 900);
       return;
@@ -762,6 +873,7 @@
       .then(function () {
         openSent(data.name);
         form.reset();
+        resetCalcBasket();
         clearStatus();
       })
       .catch(function () {
@@ -772,6 +884,31 @@
         submitBtn.disabled = false;
       });
   });
+
+  /* ---- sticky mobile "Get a quote" button ----
+     Appears once the hero has scrolled away, hides while the enquiry section
+     is on screen so it never overlaps the form. */
+  var fab = document.getElementById('quoteFab');
+  var enquirySec = document.getElementById('enquiry');
+  if (fab && enquirySec && 'IntersectionObserver' in window) {
+    var heroSec = document.querySelector('.hero');
+    var pastHero = false, enquiryVisible = false;
+    function updateFab() {
+      fab.classList.toggle('is-visible', pastHero && !enquiryVisible);
+    }
+    if (heroSec) {
+      new IntersectionObserver(function (entries) {
+        pastHero = !entries[0].isIntersecting;
+        updateFab();
+      }, { threshold: 0 }).observe(heroSec);
+    } else {
+      pastHero = true;
+    }
+    new IntersectionObserver(function (entries) {
+      enquiryVisible = entries[0].isIntersecting;
+      updateFab();
+    }, { threshold: 0.01 }).observe(enquirySec);
+  }
 
   /* ---- year in footer ---- */
   var y = document.getElementById('year');
