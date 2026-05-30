@@ -796,9 +796,29 @@
     });
   });
 
+  // spam guards: honeypot field + minimum time-to-submit
+  var formReadyAt = Date.now();
+  var MIN_FILL_MS = 2000;
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     clearStatus();
+
+    // bot trap 1 — hidden honeypot got filled (humans never see it).
+    // Definite bot: fake success so it doesn't retry, but send nothing.
+    var hp = form.elements['website'];
+    if (hp && hp.value) {
+      openSent(form.name.value.trim());
+      form.reset();
+      resetCalcBasket();
+      return;
+    }
+    // bot trap 2 — submitted implausibly fast. Soft-block so a rare quick
+    // human just sends again; this only stops instant auto-submit bots.
+    if (Date.now() - formReadyAt < MIN_FILL_MS) {
+      setStatus('err', 'Just a moment — please tap send again.');
+      return;
+    }
 
     if (!validate()) {
       setStatus('err', 'Please check the highlighted fields and try again.');
