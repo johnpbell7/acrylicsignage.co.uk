@@ -652,6 +652,39 @@
   }
   function clearStatus() { statusBox.className = 'form__status'; statusBox.textContent = ''; }
 
+  /* ---- "Enquiry sent" success modal ---- */
+  var sentModal = document.getElementById('sentModal');
+  var sentMsgEl = sentModal && sentModal.querySelector('#sentMsg');
+  var sentDone  = sentModal && sentModal.querySelector('.sent__done');
+  var lastFocus = null;
+
+  function openSent(name) {
+    if (!sentModal) return;
+    if (sentMsgEl) {
+      var first = (name || '').trim().split(/\s+/)[0];
+      sentMsgEl.textContent = (first ? 'Thanks, ' + first + ' — ' : 'Thanks — ')
+        + 'your enquiry has landed with the studio. We’ll reply with options and a price, usually the same day.';
+    }
+    lastFocus = document.activeElement;
+    sentModal.hidden = false;
+    document.body.classList.add('sent-open');
+    if (sentDone) setTimeout(function () { sentDone.focus(); }, 60);
+  }
+  function closeSent() {
+    if (!sentModal || sentModal.hidden) return;
+    sentModal.hidden = true;
+    document.body.classList.remove('sent-open');
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+  if (sentModal) {
+    sentModal.querySelectorAll('[data-sent-close]').forEach(function (el) {
+      el.addEventListener('click', closeSent);
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !sentModal.hidden) closeSent();
+    });
+  }
+
   function validate() {
     var ok = true;
     form.querySelectorAll('[required]').forEach(function (input) {
@@ -710,8 +743,9 @@
       setTimeout(function () {
         submitBtn.classList.remove('loading');
         submitBtn.disabled = false;
+        openSent(data.name);
         form.reset();
-        setStatus('ok', 'Thanks — your enquiry is in. We\u2019ll reply with options and a price, usually the same day. (Demo mode: connect your GHL webhook to go live.)');
+        clearStatus();
       }, 900);
       return;
     }
@@ -726,8 +760,9 @@
         return res;
       })
       .then(function () {
+        openSent(data.name);
         form.reset();
-        setStatus('ok', 'Thanks — your enquiry is in. We\u2019ll reply with options and a price, usually the same day.');
+        clearStatus();
       })
       .catch(function () {
         setStatus('err', 'Connection failed. Please try again, or email hello@acrylicsignage.co.uk directly.');

@@ -965,6 +965,25 @@
     </div>
   </footer>
 
+  <!-- ============ ENQUIRY SENT — SUCCESS MODAL ============ -->
+  <div class="sent" id="sentModal" hidden>
+    <div class="sent__overlay" data-sent-close></div>
+    <div class="sent__card" role="dialog" aria-modal="true" aria-labelledby="sentTitle" aria-describedby="sentMsg">
+      <button type="button" class="sent__close" data-sent-close aria-label="Close">
+        <span data-icon="close"></span>
+      </button>
+      <div class="sent__badge" aria-hidden="true">
+        <span data-icon="check"></span>
+      </div>
+      <h3 class="sent__title" id="sentTitle">Enquiry sent</h3>
+      <p class="sent__msg" id="sentMsg">Thanks — your enquiry has landed with the studio. We’ll reply with options and a price, usually the same day.</p>
+      <button type="button" class="sent__done" data-sent-close>
+        <span class="label">Done</span>
+        <span data-icon="arrow"></span>
+      </button>
+    </div>
+  </div>
+
   <script src="assets/icons/icons.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
