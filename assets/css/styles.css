@@ -1517,60 +1517,6 @@ body.sent-open .quote-fab { opacity: 0; pointer-events: none; }
 @media (max-width: 720px) { .quote-fab { display: inline-flex; } }
 
 /* ============================================================
-   CALCULATOR — LIVE LETTERING PREVIEW
-   ============================================================ */
-.calc__preview { margin: 1.6rem 0 0; }
-.calc__preview-label {
-  display: block;
-  font-size: .7rem;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  font-weight: 600;
-  margin-bottom: .5rem;
-}
-.calc__preview-stage {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 96px;
-  padding: 1.4rem 1.2rem;
-  border-radius: var(--radius-m);
-  background:
-    linear-gradient(180deg, #f7f8f8 0%, #e7e9ea 100%);
-  border: 1px solid var(--line);
-  overflow: hidden;
-}
-.calc__preview-text {
-  font-family: var(--display);
-  font-weight: 700;
-  font-size: clamp(1.1rem, 6vw, 1.9rem);
-  letter-spacing: .01em;
-  text-align: center;
-  line-height: 1.05;
-  word-break: break-word;
-  /* default — dark acrylic gloss */
-  color: #1b1d20;
-  text-shadow: 0 1px 0 rgba(255,255,255,.5), 0 2px 3px rgba(13,15,17,.32);
-}
-/* finishes / materials tint the rendered letters */
-.calc__preview-stage[data-material="acm"][data-finish="brushed"] .calc__preview-text,
-.calc__preview-stage[data-finish="brushed"] .calc__preview-text {
-  color: #8b9095;
-  background: linear-gradient(180deg, #c9cdd0, #80868c);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 2px 3px rgba(13,15,17,.28);
-}
-.calc__preview-stage[data-material="acrylic"] .calc__preview-text { color: #101113; }
-.calc__preview-stage[data-material="foamboard"] .calc__preview-text {
-  color: #ffffff;
-  text-shadow: 0 1px 1px rgba(13,15,17,.35), 0 3px 5px rgba(13,15,17,.25);
-}
-.calc__preview-text.is-empty { color: var(--ink-faint); -webkit-text-fill-color: var(--ink-faint); background: none; text-shadow: none; font-weight: 500; }
-
-/* ============================================================
    QUOTE BASKET (multi-item enquiry)
    ============================================================ */
 .basket {

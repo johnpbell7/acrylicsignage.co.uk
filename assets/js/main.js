@@ -445,8 +445,6 @@
     var hintEl  = document.getElementById('c-text-hint');
     var matEl   = document.getElementById('c-material');
     var finEl   = document.getElementById('c-finish');
-    var prevText  = document.getElementById('calcPreviewText');
-    var prevStage = prevText && prevText.closest('.calc__preview-stage');
 
     // restrict finish options based on selected material
     function syncFinish() {
@@ -463,16 +461,6 @@
       if (hintEl) {
         var n = pieceCount(s.text);
         hintEl.textContent = n + ' piece' + (n === 1 ? '' : 's');
-      }
-      // live lettering preview — text + material/finish tint
-      if (prevText) {
-        var hasText = !!s.text;
-        prevText.textContent = hasText ? s.text : 'Your text here';
-        prevText.classList.toggle('is-empty', !hasText);
-      }
-      if (prevStage) {
-        prevStage.setAttribute('data-material', s.material);
-        prevStage.setAttribute('data-finish', s.finish);
       }
     }
     calcForm.addEventListener('input', updateTotal);
