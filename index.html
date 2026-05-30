@@ -802,80 +802,111 @@
           <form id="calcForm" class="form-pane" data-pane="calc" hidden novalidate>
             <p class="calc__intro">Configure your cut letters and we'll work out an indicative price. No commitment — add it to an enquiry when you're ready.</p>
 
-            <div class="calc__step">
-              <span class="calc__step-num">01</span>
-              <div class="calc__step-body">
-                <label class="calc__step-h" for="c-text">What does it say?</label>
-                <p class="calc__step-help">Enter the text so we can count the pieces. If your artwork is a logo with separate shapes, enter the number of pieces (e.g. "123456" for a 6-piece logo).</p>
-                <div class="form__row form__row--text">
-                  <div class="field">
-                    <label for="c-text" class="sr-only">Text</label>
-                    <input id="c-text" name="text" type="text" placeholder="e.g. THE DAILY GRIND" maxlength="60" required />
+            <div class="calc__steps">
+              <div class="calc__step is-open" data-step="0">
+                <button type="button" class="calc__step-toggle" aria-expanded="true" aria-controls="c-step-0">
+                  <span class="calc__step-num">01</span>
+                  <span class="calc__step-headwrap">
+                    <span class="calc__step-title">What does it say?</span>
+                    <span class="calc__step-summary"></span>
+                  </span>
+                  <span class="calc__step-edit">Edit</span>
+                </button>
+                <div class="calc__step-body" id="c-step-0">
+                  <p class="calc__step-help">Enter the text so we can count the pieces. If your artwork is a logo with separate shapes, enter the number of pieces (e.g. "123456" for a 6-piece logo).</p>
+                  <div class="form__row form__row--text">
+                    <div class="field">
+                      <label for="c-text" class="sr-only">Text</label>
+                      <input id="c-text" name="text" type="text" placeholder="e.g. THE DAILY GRIND" maxlength="60" required />
+                    </div>
+                    <div class="field">
+                      <label for="c-qty">Qty</label>
+                      <input id="c-qty" name="qty" type="number" min="1" max="100" value="1" />
+                    </div>
                   </div>
-                  <div class="field">
-                    <label for="c-qty">Qty</label>
-                    <input id="c-qty" name="qty" type="number" min="1" max="100" value="1" />
-                  </div>
-                </div>
-                <span class="field__hint" id="c-text-hint">0 pieces</span>
-              </div>
-            </div>
-
-            <div class="calc__step">
-              <span class="calc__step-num">02</span>
-              <div class="calc__step-body">
-                <label class="calc__step-h">Dimensions</label>
-                <p class="calc__step-help">Overall size of the cut lettering job — tip-to-tip of the full layout in millimetres.</p>
-                <div class="form__row">
-                  <div class="field">
-                    <label for="c-width">Width (mm)</label>
-                    <input id="c-width" name="width" type="number" min="20" max="3000" step="10" value="1000" required />
-                  </div>
-                  <div class="field">
-                    <label for="c-height">Height (mm)</label>
-                    <input id="c-height" name="height" type="number" min="20" max="2000" step="10" value="500" required />
-                  </div>
+                  <span class="field__hint" id="c-text-hint">0 pieces</span>
+                  <button type="button" class="calc__step-next">Continue<span data-icon="arrow"></span></button>
                 </div>
               </div>
-            </div>
 
-            <div class="calc__step">
-              <span class="calc__step-num">03</span>
-              <div class="calc__step-body">
-                <label class="calc__step-h">Substrate</label>
-                <div class="form__row">
+              <div class="calc__step is-pending" data-step="1">
+                <button type="button" class="calc__step-toggle" aria-expanded="false" aria-controls="c-step-1">
+                  <span class="calc__step-num">02</span>
+                  <span class="calc__step-headwrap">
+                    <span class="calc__step-title">Dimensions</span>
+                    <span class="calc__step-summary"></span>
+                  </span>
+                  <span class="calc__step-edit">Edit</span>
+                </button>
+                <div class="calc__step-body" id="c-step-1">
+                  <p class="calc__step-help">Overall size of the cut lettering job — tip-to-tip of the full layout in millimetres.</p>
+                  <div class="form__row">
+                    <div class="field">
+                      <label for="c-width">Width (mm)</label>
+                      <input id="c-width" name="width" type="number" min="20" max="3000" step="10" value="1000" required />
+                    </div>
+                    <div class="field">
+                      <label for="c-height">Height (mm)</label>
+                      <input id="c-height" name="height" type="number" min="20" max="2000" step="10" value="500" required />
+                    </div>
+                  </div>
+                  <button type="button" class="calc__step-next">Continue<span data-icon="arrow"></span></button>
+                </div>
+              </div>
+
+              <div class="calc__step is-pending" data-step="2">
+                <button type="button" class="calc__step-toggle" aria-expanded="false" aria-controls="c-step-2">
+                  <span class="calc__step-num">03</span>
+                  <span class="calc__step-headwrap">
+                    <span class="calc__step-title">Substrate</span>
+                    <span class="calc__step-summary"></span>
+                  </span>
+                  <span class="calc__step-edit">Edit</span>
+                </button>
+                <div class="calc__step-body" id="c-step-2">
+                  <div class="form__row">
+                    <div class="field">
+                      <label for="c-material">Material (3 mm)</label>
+                      <select id="c-material" name="material">
+                        <option value="foamboard">Foamboard — internal / short-term</option>
+                        <option value="acm" selected>Aluminium composite — exterior / effects</option>
+                        <option value="acrylic">Acrylic — most popular external</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="c-finish">Finish</label>
+                      <select id="c-finish" name="finish">
+                        <option value="matt">Matt</option>
+                        <option value="gloss" selected>Gloss</option>
+                        <option value="brushed">Brushed</option>
+                      </select>
+                    </div>
+                  </div>
+                  <button type="button" class="calc__step-next">Continue<span data-icon="arrow"></span></button>
+                </div>
+              </div>
+
+              <div class="calc__step is-pending" data-step="3">
+                <button type="button" class="calc__step-toggle" aria-expanded="false" aria-controls="c-step-3">
+                  <span class="calc__step-num">04</span>
+                  <span class="calc__step-headwrap">
+                    <span class="calc__step-title">Fixings &amp; mounting</span>
+                    <span class="calc__step-summary"></span>
+                  </span>
+                  <span class="calc__step-edit">Edit</span>
+                </button>
+                <div class="calc__step-body" id="c-step-3">
                   <div class="field">
-                    <label for="c-material">Material (3 mm)</label>
-                    <select id="c-material" name="material">
-                      <option value="foamboard">Foamboard — internal / short-term</option>
-                      <option value="acm" selected>Aluminium composite — exterior / effects</option>
-                      <option value="acrylic">Acrylic — most popular external</option>
+                    <label for="c-fixings" class="sr-only">Fixings &amp; mounting</label>
+                    <select id="c-fixings" name="fixings">
+                      <option value="none" selected>No fixings</option>
+                      <option value="vhb_tape">VHB tape + cardboard template</option>
+                      <option value="sign_locators">Sign locators + template</option>
+                      <option value="sign_locators_clad">Sign locators + cladding template</option>
+                      <option value="vhb_vinyl">VHB tape + vinyl template</option>
                     </select>
                   </div>
-                  <div class="field">
-                    <label for="c-finish">Finish</label>
-                    <select id="c-finish" name="finish">
-                      <option value="matt">Matt</option>
-                      <option value="gloss" selected>Gloss</option>
-                      <option value="brushed">Brushed</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="calc__step">
-              <span class="calc__step-num">04</span>
-              <div class="calc__step-body">
-                <label class="calc__step-h" for="c-fixings">Fixings &amp; mounting</label>
-                <div class="field">
-                  <select id="c-fixings" name="fixings">
-                    <option value="none" selected>No fixings</option>
-                    <option value="vhb_tape">VHB tape + cardboard template</option>
-                    <option value="sign_locators">Sign locators + template</option>
-                    <option value="sign_locators_clad">Sign locators + cladding template</option>
-                    <option value="vhb_vinyl">VHB tape + vinyl template</option>
-                  </select>
+                  <button type="button" class="calc__step-next calc__step-next--last">Done<span data-icon="check"></span></button>
                 </div>
               </div>
             </div>

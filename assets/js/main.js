@@ -465,6 +465,104 @@
     syncFinish();
     updateTotal();
 
+    /* ---- Collapsible steps: each section folds into a summary once filled ----
+       Steps reveal one at a time. Completing a step (Continue / Done) collapses
+       it to a one-line summary and opens the next unfinished step. The header of
+       a completed step acts as an Edit toggle that reopens it. When every step is
+       complete the whole form is collapsed and only the quote total remains. */
+    var stepEls   = Array.prototype.slice.call(calcForm.querySelectorAll('.calc__step'));
+    var completed = stepEls.map(function () { return false; });
+
+    function stepSummary(idx) {
+      var s = calcSpec();
+      switch (idx) {
+        case 0:
+          var n = pieceCount(s.text);
+          return '“' + (s.text || '—') + '” · Qty ' + (s.qty || 1)
+               + ' · ' + n + ' piece' + (n === 1 ? '' : 's');
+        case 1:
+          return s.width + ' × ' + s.height + ' mm';
+        case 2:
+          return MAT_LABEL[s.material] + ' · ' + FINISH_LABEL[s.finish];
+        case 3:
+          return FIX_LABEL[s.fixings];
+      }
+      return '';
+    }
+
+    function markInvalid(id) {
+      var el = document.getElementById(id);
+      if (el) el.closest('.field').classList.add('invalid');
+    }
+    function validateStep(idx) {
+      stepEls[idx].querySelectorAll('.field.invalid').forEach(function (f) {
+        f.classList.remove('invalid');
+      });
+      var s = calcSpec();
+      var ok = true;
+      if (idx === 0) {
+        if (!s.text) { markInvalid('c-text'); ok = false; }
+      } else if (idx === 1) {
+        if (!s.width  || s.width  < 20) { markInvalid('c-width');  ok = false; }
+        if (!s.height || s.height < 20) { markInvalid('c-height'); ok = false; }
+      }
+      return ok;
+    }
+
+    function paintSteps(openIdx) {
+      stepEls.forEach(function (step, i) {
+        var isOpen = i === openIdx;
+        step.classList.toggle('is-open', isOpen);
+        step.classList.toggle('is-done', completed[i] && !isOpen);
+        step.classList.toggle('is-pending', !completed[i] && !isOpen);
+        var toggle  = step.querySelector('.calc__step-toggle');
+        var summary = step.querySelector('.calc__step-summary');
+        if (toggle)  toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        if (summary) summary.textContent = completed[i] ? stepSummary(i) : '';
+      });
+    }
+
+    function openStep(idx, focus) {
+      paintSteps(idx);
+      if (focus && idx >= 0) {
+        var f = stepEls[idx].querySelector('input, select');
+        if (f) setTimeout(function () { f.focus(); }, 60);
+      }
+    }
+
+    function advance(idx) {
+      if (!validateStep(idx)) {
+        var bad = stepEls[idx].querySelector('.field.invalid input, .field.invalid select');
+        if (bad) bad.focus();
+        return;
+      }
+      completed[idx] = true;
+      updateTotal();
+      // find the next unfinished step (search forward, then from the start)
+      var next = -1;
+      for (var i = idx + 1; i < stepEls.length; i++) { if (!completed[i]) { next = i; break; } }
+      if (next === -1) {
+        for (var j = 0; j < stepEls.length; j++) { if (!completed[j]) { next = j; break; } }
+      }
+      if (next === -1) {
+        openStep(-1, false);  // everything done — fully collapsed, quote on show
+      } else {
+        openStep(next, true);
+      }
+    }
+
+    stepEls.forEach(function (step, i) {
+      var toggle = step.querySelector('.calc__step-toggle');
+      if (toggle) toggle.addEventListener('click', function () {
+        // header only acts as an Edit toggle for completed (collapsed) steps
+        if (!step.classList.contains('is-open') && completed[i]) openStep(i, true);
+      });
+      var next = step.querySelector('.calc__step-next');
+      if (next) next.addEventListener('click', function () { advance(i); });
+    });
+
+    openStep(0, false);
+
     /* ---- Add to enquiry: copy spec + price into general form, switch tab ---- */
     var addBtn       = document.getElementById('calcAdd');
     var quoteAtt     = document.getElementById('quoteAttached');
