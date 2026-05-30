@@ -912,7 +912,6 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
 /* text + qty: roomy text input + narrow qty stepper on the right.
    align-items: end so both inputs line up along the bottom edge */
 .form__row--text { grid-template-columns: 1fr 88px; align-items: end; }
-.form__row--text + .field__hint { display: block; margin-top: .35rem; }
 /* visually hidden label (input still labelled for screen readers) */
 .sr-only {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
@@ -1095,12 +1094,6 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
   line-height: 1.5;
   max-width: 50ch;
 }
-.field__hint {
-  font-size: .75rem;
-  color: var(--ink-faint);
-  margin-top: -.2rem;
-  font-variant-numeric: tabular-nums;
-}
 
 /* ---- per-step continue / done button ---- */
 .calc__step-next {
@@ -1175,7 +1168,6 @@ body.menu-open .nav__burger span:nth-child(3){ bottom:auto; top:50%; transform: 
 .footer__col a:hover { color: var(--on-dark); padding-left: 6px; }
 .footer__bottom { border-top: 1px solid rgba(255,255,255,.12); padding-block: 1.6rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: .82rem; color: var(--on-dark-soft); }
 .footer__bottom a { color: var(--on-dark-soft); } .footer__bottom a:hover { color: var(--on-dark); }
-.footer__big { font-family: var(--display); font-size: clamp(3rem, 14vw, 11rem); line-height: .85; letter-spacing: -.04em; color: var(--dark-2); -webkit-text-stroke: 1px rgba(255,255,255,.1); padding-bottom: 2rem; user-select: none; }
 
 /* ============================================================
    reveal on scroll
